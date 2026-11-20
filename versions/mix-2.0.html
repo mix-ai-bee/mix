@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Mix</title>
+<style>
+:root{--bg:#15121f;--panel:#1f1a2e;--line:#332b4a;--text:#f1ecff;--mut:#9a90b8;--pink:#ff4f8b;--mint:#35e0b0}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;display:flex;flex-direction:column}
+header{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--line)}
+.logo{display:flex;align-items:center;gap:8px;margin-right:6px}.logo small{color:var(--mut);font-size:12px}
+.av{width:30px;height:30px;border-radius:50%;background:#fff}
+.pill{background:#000;color:#fff;border:1px solid #fff;border-radius:8px;padding:0 9px;font-weight:900;font-size:18px;letter-spacing:-.5px}
+input,select,textarea,button{font:inherit;color:var(--text)}
+input,select,textarea{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+:focus-visible{outline:2px solid var(--mint);outline-offset:2px}
+#key{width:170px}#model{flex:1;min-width:170px;max-width:360px}
+.chk{color:var(--mut);font-size:14px;display:flex;gap:6px;align-items:center}
+button{border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:8px 12px;cursor:pointer}
+button:hover{border-color:var(--pink)}
+button.on{background:var(--mint);color:#08231b;border-color:var(--mint)}
+#live{background:var(--pink);border-color:var(--pink);color:#fff;font-weight:700;border-radius:999px;padding:9px 18px}
+#live.on{animation:pulse 1.3s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 10px #ff4f8b44}}
+@media(prefers-reduced-motion:reduce){#live.on{animation:none}}
+.wrap{flex:1;display:flex;min-height:0;position:relative}
+aside{width:230px;border-right:1px solid var(--line);padding:10px;display:flex;flex-direction:column;gap:8px;overflow:auto;background:var(--bg)}
+#list{display:flex;flex-direction:column;gap:4px}
+.ch{display:flex;align-items:center;gap:6px;padding:7px 10px;border-radius:10px;cursor:pointer;color:var(--mut)}
+.ch span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ch.cur{background:var(--panel);color:var(--text)}
+.ch i{font-style:normal;opacity:.6}.ch i:hover{opacity:1;color:var(--pink)}
+#menu{display:none}
+#tools{display:contents}#more{display:none}
+body.phone{height:100dvh}
+body.phone header{gap:6px;padding:8px 10px}
+body.phone #menu,body.phone #more{display:inline-block}
+body.phone .logo .pill{font-size:16px}
+body.phone header>button{padding:6px 10px}body.phone #live{padding:6px 12px}
+body.phone #tools{display:none;order:10;flex-basis:100%;flex-direction:column;gap:8px}
+body.phone #tools.open{display:flex}
+body.phone #tools input:not([type=checkbox]),body.phone #tools select,body.phone #tools button,body.phone #tools .btn{width:100%;max-width:none;text-align:center}
+body.phone button,body.phone select,body.phone input:not([type=checkbox]){min-height:44px}
+body.phone aside{position:absolute;inset:0 auto 0 0;z-index:5;display:none;width:84%}
+body.phone aside.open{display:flex}
+body.phone #chat{padding:12px 10px}
+body.phone .msg{max-width:96%}
+body.phone footer{padding:0 10px calc(10px + env(safe-area-inset-bottom));gap:6px}
+body.phone #text{flex-basis:100%;order:-1}
+body.phone footer .ib{flex:1}
+body.phone #send{flex:2}
+body.phone #look{flex-basis:100%}
+body.phone #screen{width:120px;bottom:160px}
+body.phone dialog{max-height:90dvh;overflow:auto}
+body.phone .act button{min-height:36px}
+.col{flex:1;display:flex;flex-direction:column;min-width:0}
+#chat{flex:1;overflow:auto;padding:18px 16px;display:flex;flex-direction:column;gap:12px}
+.msg{max-width:min(760px,92%);padding:10px 14px;border-radius:14px;white-space:pre-wrap;word-break:break-word}
+.me{align-self:flex-end;background:var(--pink);color:#fff}
+.ai{align-self:flex-start;background:var(--panel);border:1px solid var(--line)}
+.sys{align-self:center;color:var(--mut);font-size:14px;text-align:center}
+.act{display:flex;gap:6px;margin-top:8px}.act button{padding:3px 10px;font-size:14px}
+pre{background:#0d0a16;border-radius:8px;padding:10px;overflow:auto;margin:6px 0;white-space:pre;font-size:14px}
+#status{color:var(--mut);font-size:13px;padding:4px 16px;min-height:26px}
+footer{padding:0 14px 12px;display:flex;gap:8px;align-items:flex-end}
+#text{flex:1;resize:none;max-height:140px}
+#screen{position:fixed;right:14px;bottom:100px;width:230px;border-radius:10px;border:2px solid var(--mint);display:none;background:#000}
+dialog{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:14px;max-width:440px;width:92%}
+dialog::backdrop{background:#000a}
+dialog label{display:block;margin:12px 0 4px;color:var(--mut);font-size:14px}
+dialog input[type=text],dialog select{width:100%}
+dialog .chk{display:flex}.hint{color:var(--mut);font-size:14px}
+#att{display:flex;flex-wrap:wrap;gap:8px;padding:0 14px 8px}#att:empty{display:none}
+.chip{display:flex;align-items:center;gap:6px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:3px 8px 3px 3px;font-size:13px;max-width:200px}
+.chip img{width:36px;height:36px;object-fit:cover;border-radius:6px}.chip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.chip i{font-style:normal;cursor:pointer;opacity:.7}
+#look{display:none}footer{flex-wrap:wrap}#text{min-width:160px}footer .ib{padding:8px 11px;font-size:18px}
+.msg.ai>.av{float:left;width:22px;height:22px;margin:2px 8px 2px 0}
+.nm{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;margin-bottom:4px}.nm img{width:20px;height:20px;border-radius:50%;object-fit:cover}
+#q{width:100%}#cmds td{padding:2px 10px 2px 0;vertical-align:top;font-size:14px}dialog h4{margin:16px 0 0}#gamed{max-width:920px;width:96%}
+#camd{max-width:720px;width:96%}#camv{width:100%;max-height:70vh;border-radius:10px;background:#000}
+.camrow{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+.shut{width:70px;height:70px;border-radius:50%;border:5px solid #cfcfd8;background:#fff;padding:0}.shut:active{transform:scale(.92)}
+.btn{display:inline-block;border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:8px 12px;color:var(--text);text-decoration:none}.btn:hover{border-color:var(--pink)}
+.btn.big{background:var(--mint);color:#08231b;border-color:var(--mint);font-weight:700}#pbox{display:none}#pbox .btn{margin-top:12px}#ptag{color:var(--mut);font-size:13px}
+</style>
+</head>
+<body>
+<header>
+  <button id="menu" aria-label="Чаты">☰</button>
+  <div class="logo"><img id="av" class="av" alt=""><span class="pill">Mix</span><small>v2.0</small></div>
+  <button id="more" aria-label="Ключ и модель">🔑 ▾</button>
+  <div id="tools"><input id="key" type="password" placeholder="API-ключ OpenRouter" autocomplete="off">
+  <a id="keylink" class="btn big" href="https://openrouter.ai/keys" target="_blank" rel="noopener">🔑 Получить ключ</a>
+  <select id="model" aria-label="Модель"></select>
+  <label class="chk"><input id="free" type="checkbox" checked> бесплатные</label>
+  <button id="prov" title="Свой провайдер: Gemini, Claude, ChatGPT, Grok">🔌 Другие модели</button><span id="ptag"></span>
+  <button id="share">🖥 Экран</button></div>
+  <button id="live">🎙 Live</button>
+  <button id="adm" aria-label="Админ-панель" style="display:none">🛠</button>
+  <button id="gear" aria-label="Настройки">⚙</button>
+</header>
+<div class="wrap">
+  <aside id="side"><button id="new">+ Новый чат</button><input id="q" type="search" placeholder="Поиск по чатам"><div id="list"></div></aside>
+  <div class="col">
+    <div id="chat"></div>
+    <div id="status"></div>
+    <button id="pz" style="display:none;margin:0 14px 6px;align-self:flex-start"></button>
+    <div id="att"></div>
+    <footer>
+      <button id="clip" class="ib" aria-label="Прикрепить картинку или видео" title="Картинка или видео">📎</button>
+      <button id="camb" class="ib" aria-label="Сделать фото" title="Сделать фото камерой">📷</button>
+      <button id="mic" class="ib" aria-label="Диктовка" title="Говори, текст появится в поле">🎤</button>
+      <button id="imgb" class="ib" aria-label="Нарисовать картинку" title="Нарисовать картинку">🎨</button>
+      <button id="vidb" class="ib" aria-label="Снять видео" title="Снять видео">🎬</button>
+      <textarea id="text" rows="1" placeholder="Напиши Mix…  (команды: 6, 16, 2-1, 1-2, 456, 654, 258 и пробел)"></textarea>
+      <button id="look">👁 Посмотреть</button>
+      <button id="send">Отправить</button>
+    </footer>
+    <input id="file" type="file" accept="image/*,video/*" multiple hidden>
+  </div>
+</div>
+<video id="screen" autoplay muted playsinline></video>
+<dialog id="set">
+  <h3 style="margin:0">Настройки</h3>
+  <label for="dev">Устройство (как подстроить сайт)</label>
+  <select id="dev"><option value="auto">Авто (подстроится само)</option><option value="pc">Компьютер</option><option value="phone">Телефон</option></select>
+  <label for="dedup">Повторы слов подряд (например «привет привет»)</label>
+  <select id="dedup"><option value="ask">Спрашивать при 2–3 повторах, 4 и больше убирать сам</option><option value="auto">Убирать сам</option><option value="off">Выключено</option></select>
+  <label>Копия данных на компьютере</label>
+  <div style="display:flex;gap:6px;flex-wrap:wrap"><button id="bkp">💾 Сохранить копию</button><button id="rst">📂 Загрузить копию</button></div>
+  <input id="rstf" type="file" accept="application/json,.json" hidden>
+  <p class="hint">В копию попадают чаты, память и настройки. Ключи не попадают: их надёжнее вводить заново.</p>
+  <label for="mode">Режим Mix</label>
+  <select id="mode"><option value="friendly">Дружеский</option><option value="serious">Серьёзный</option><option value="game">Игровой</option><option value="kid">Детский</option></select>
+  <label for="name">Твоё имя</label><input id="name" type="text">
+  <div id="pbx" style="display:none"><label for="apass">Пароль админа</label><input id="apass" type="password" autocomplete="off"></div>
+  <label for="lang">Язык (слушание, голос и ответы)</label><select id="lang"></select>
+  <label for="voice">Голос Mix</label><select id="voice"></select>
+  <label class="chk" style="margin-top:14px"><input id="auto" type="checkbox"> озвучивать все ответы</label>
+  <label class="chk" style="margin-top:8px"><input id="memon" type="checkbox"> память: запоминать важное обо мне</label>
+  <button id="memb" style="margin:10px 0">🧠 Память Mix</button>
+  <label for="imgsrc">Картинки: чем рисовать</label>
+  <select id="imgsrc"><option value="pol">Pollinations (бесплатно, без ключа)</option><option value="or">Модель OpenRouter (платная, нужны кредиты)</option></select>
+  <select id="imgmodel" style="width:100%;margin-top:6px;display:none"></select>
+  <label class="chk" style="margin-top:8px"><input id="imgtr" type="checkbox"> умный запрос: Mix сам выделяет, что рисовать, и переводит на английский</label>
+  <label for="vidsrc">Видео: чем снимать</label>
+  <select id="vidsrc" style="width:100%"><option value="code">Мультик кодом (бесплатно, без ключей)</option><option value="pol">Pollinations (бесплатно, с лимитами)</option><option value="or">OpenRouter (платно: Sora, Veo, Kling…)</option></select>
+  <div id="polbox">
+    <select id="polvid" style="width:100%;margin-top:6px"><option value="ltx-2.3">ltx-2.3 (бесплатная)</option><option value="ltx-2">ltx-2</option><option value="wan">wan (может быть платной)</option><option value="seedance">seedance (может быть платной)</option></select>
+    <input id="polkey" type="password" autocomplete="off" placeholder="Бесплатный ключ Pollinations (нужен)" style="width:100%;margin-top:6px">
+    <a class="btn" href="https://enter.pollinations.ai" target="_blank" rel="noopener" style="margin-top:6px">🔑 Получить бесплатный ключ</a>
+  </div>
+  <div id="orbox" style="display:none">
+    <label for="vidmodel">Модель OpenRouter (платно)</label>
+    <select id="vidmodel" style="width:100%"></select>
+    <select id="vidsec" style="margin-top:6px"></select>
+  </div>
+  <p class="hint" id="hint"></p>
+  <button id="ok" class="on">Готово</button>
+</dialog>
+
+<dialog id="camd">
+  <video id="camv" autoplay playsinline muted></video>
+  <div class="camrow"><button id="camsw">🔄 Камера</button><button id="shot" class="shut" aria-label="Сфотографировать"></button><button id="camx">✕ Закрыть</button></div>
+  <p class="hint" style="margin:8px 0 0">Поднеси предмет к камере и нажми на белый круг.</p>
+</dialog>
+<dialog id="gamed">
+  <div style="display:flex;justify-content:space-between;align-items:center"><b>▶ Запуск от Mix</b><button id="gclose">✕ Закрыть</button></div>
+  <p class="hint" style="margin:6px 0">Кликни по окну, чтобы управлять с клавиатуры.</p>
+  <p id="gerr" class="hint" style="margin:6px 0;color:var(--pink)"></p>
+  <iframe id="gf" sandbox="allow-scripts allow-modals" style="width:100%;height:68vh;border:0;background:#000;border-radius:8px"></iframe>
+</dialog>
+<dialog id="memd">
+  <h3 style="margin:0">🧠 Память Mix</h3>
+  <p class="hint">Что Mix запомнил о тебе. Хранится только в этом браузере, но уходит выбранной модели вместе с запросом. Любой пункт можно удалить.</p>
+  <div id="mlist"></div>
+  <label for="mnew">Добавить вручную</label><input id="mnew" type="text">
+  <button id="madd" style="margin-top:8px">+ Добавить</button>
+  <div style="margin-top:14px;display:flex;gap:8px"><button id="mclr">Стереть всё</button><button id="mclose" class="on">Закрыть</button></div>
+</dialog>
+<dialog id="provd">
+  <h3 style="margin:0">🔌 Другие модели</h3>
+  <p class="hint">Если на OpenRouter закончились токены или лимиты, подключи своего провайдера. У каждого свой ключ, ссылка на него ниже.</p>
+  <label for="pv">Провайдер</label><select id="pv"></select>
+  <div id="pbox">
+    <a id="plink" class="btn big" target="_blank" rel="noopener">🔑 Получить ключ</a>
+    <label for="pkey">API-ключ</label><input id="pkey" type="password" autocomplete="off">
+    <label for="pm">Модель</label><select id="pm" style="width:100%"></select>
+    <button id="pload" style="margin-top:8px">Загрузить список моделей</button>
+    <label for="pmt">…или впиши название модели вручную</label><input id="pmt" type="text">
+  </div>
+  <p id="pstat" class="hint"></p>
+  <button id="pok" class="on">Готово</button>
+</dialog>
+<dialog id="admd">
+  <h3 style="margin:0">🛠 Админ-панель</h3>
+  <p class="hint">Команду пиши в начале сообщения, потом пробел и вопрос. Несколько сразу: через запятую или пробел, например <b>111,1-2 вопрос</b>. Обычным людям команды недоступны: режим они выбирают в настройках.</p>
+  <table id="cmds"></table>
+  <h4>Ники</h4>
+  <label for="ntarget">Имя человека (пусто: это ты)</label><input id="ntarget" type="text">
+  <label for="nnick">Новый ник (любой текст и смайлики)</label><input id="nnick" type="text">
+  <label for="nimg">Картинка (необязательно)</label><input id="nimg" type="file" accept="image/*">
+  <button id="nsave" class="on" style="margin-top:12px">Сохранить ник</button>
+  <div id="nlist"></div>
+  <button id="aclose" style="margin-top:14px">Закрыть</button>
+</dialog>
+
+<script>
+const $=id=>document.getElementById(id);
+const ld=(k,d)=>{try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}};
+const sv=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+const S={models:[],stream:null,live:false,rec:null,busy:false,speaking:false,voices:[],u:null};
+const P=Object.assign({name:'',lang:'ru-RU',voice:'',auto:false,key:'',model:'',nicks:{},mem:[],memOn:true,prov:'openrouter',keys:{},pmodel:{},imgsrc:'pol',imgmodel:'',imgtr:true,vidmodel:'',vidsec:0,dev:'auto',vidsrc:'code',polvid:'ltx-2.3',polkey:'',mode:'game',dedup:'ask',admin:false,lastBkp:0},ld('mix_p',{}));
+try{P.key=P.key||localStorage.getItem('mix_key')||'';P.model=P.model||localStorage.getItem('mix_model')||''}catch(e){}
+let D=ld('mix_chats',{list:[],cur:null});
+if(P.polvid==='seedance'||P.polvid==='ltx-2')P.polvid='ltx-2.3';
+const LANGS='ru-RU Русский|en-US English|en-GB English (UK)|fi-FI Suomi|sv-SE Svenska|nb-NO Norsk|da-DK Dansk|de-DE Deutsch|fr-FR Français|es-ES Español|es-MX Español (México)|pt-BR Português (Brasil)|pt-PT Português|it-IT Italiano|nl-NL Nederlands|pl-PL Polski|cs-CZ Čeština|sk-SK Slovenčina|uk-UA Українська|be-BY Беларуская|bg-BG Български|ro-RO Română|hu-HU Magyar|el-GR Ελληνικά|tr-TR Türkçe|et-EE Eesti|lv-LV Latviešu|lt-LT Lietuvių|ka-GE ქართული|hy-AM Հայերեն|az-AZ Azərbaycan|kk-KZ Қазақша|uz-UZ Oʻzbek|ar-SA العربية|he-IL עברית|fa-IR فارسی|hi-IN हिन्दी|bn-BD বাংলা|ur-PK اردو|ta-IN தமிழ்|th-TH ไทย|vi-VN Tiếng Việt|id-ID Indonesia|ms-MY Melayu|fil-PH Filipino|zh-CN 中文（简体）|zh-TW 中文（繁體）|ja-JP 日本語|ko-KR 한국어|sw-KE Kiswahili|af-ZA Afrikaans'.split('|').map(s=>{const i=s.indexOf(' ');return[s.slice(0,i),s.slice(i+1)]});
+const STY={'6':'Отвечай с юмором: шути, будь остроумным, но суть ответа сохрани.','16':'Отвечай как живой человек в переписке: естественно, разговорно, без канцелярита, списков и markdown.','2-1':'Отвечай СУПЕР коротко: одно-два предложения, не больше 20 слов.','1-2':'Отвечай СУПЕР подробно и очень длинно: развёрнуто, с деталями, примерами и объяснениями.','111':'Объясняй в точности и буквально: пошагово, ничего не пропуская и не упрощая; называй каждую часть, как она работает и зачем нужна, используй точные термины, цифры и примеры; если что-то может быть непонятно, объясни и это.',};
+const TAG={'6':'😂 ','16':'🧑 ','2-1':'⚡ ','1-2':'📜 ','456':'🧐 ','654':'🎮 ','258':'🙂 ','6.6':'🧸 ','111':'🔬 '};
+const arr=x=>[].concat(x||[]);
+const VER='2.0',ALLOW=[];
+const AV='data:image/svg+xml,'+encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><circle cx='32' cy='32' r='32' fill='#fff'/><circle cx='32' cy='32' r='25' fill='#000'/><circle cx='23' cy='26' r='4' fill='#fff'/><circle cx='41' cy='26' r='4' fill='#fff'/><path d='M19 37q13 15 26 0' stroke='#fff' stroke-width='4' fill='none' stroke-linecap='round'/></svg>");
+const LOG='Версия 1.0: чат с выбором модели по ключу, голосовой режим Live, показ экрана. Версия 1.1: несколько чатов с сохранением, настройки (имя, язык, голос), знание о создателе, кнопки «Слушать» и «Переписать», диктовка микрофоном, прикрепление картинок и видео, команды 6, 16, 2-1, 1-2, 456, 654, 258. Версия 1.2: команды можно объединять. Версия 1.3: детский режим 6.6, админ-панель и ники, команды через запятую (456,1-2), обычным людям доступны только режимы 456, 258 и 6.6, быстрее загрузка картинок, кнопка копирования ответа, поиск по чатам, вопросы про то, что нового в версиях, новый аватар и логотип. Версия 1.4: долгая память (Mix запоминает важное о пользователе и находит нужное в прошлых чатах, память можно смотреть и стирать), пауза для голоса Mix с продолжением, крупная кнопка получения ключа, раздел «Другие модели» со своими ключами для Gemini, Claude, ChatGPT и Grok на случай, если закончились лимиты OpenRouter. Версия 1.5: рисование картинок по запросу (слово «нарисуй» в начале сообщения или кнопка 🎨), бесплатный источник Pollinations без ключа и платные модели картинок через OpenRouter, кнопка скачать картинку. Версия 1.6: Mix делает маленькие игры по просьбе (в чате появляются кнопки «Играть» и «Скачать игру»), новая команда 111: объясняет всё в точности и буквально, шаг за шагом. Версия 1.6.1: умный запрос для картинок (Mix сам выделяет, что рисовать, и переводит это на английский, настройка в ⚙). Версия 1.7: видео по запросу через OpenRouter (слова «сними видео» в начале сообщения или кнопка 🎬): платно, Mix сначала показывает цену и спрашивает подтверждение, видео можно скачать, модель и длительность выбираются в ⚙. Также в версии 1.7: подстройка под телефон, в ⚙ пункт «Устройство» (Авто, Компьютер или Телефон), на телефоне ключ и модель убираются в раскрывающуюся панель. Версия 1.8: бесплатное видео через Pollinations (по умолчанию, нужен бесплатный ключ Pollinations, ролики по 5 секунд, есть лимиты), платное видео через OpenRouter остаётся вторым вариантом, выбор в ⚙ в пункте «Видео: чем снимать». Версия 1.9: бесплатный режим «Мультик кодом» (по умолчанию для видео): Mix рисует анимацию на canvas, её можно запустить в чате кнопкой «Запустить» и скачать файлом, ключи и деньги не нужны. Версия 2.0: автопроверка игр и мультиков (Mix сам запускает их в скрытом окне, ловит ошибки и чёрный экран и чинит код), фильтр повторов слов подряд (настройка в ⚙), режимы Дружеский, Серьёзный, Игровой и Детский выбираются в настройках вместо команд, копия чатов и настроек на компьютер (сохранить и загрузить), пароль для админ-панели, фото с камеры (кнопка 📷).';
+const CMD=[['6','шутки','только админ'],['16','отвечает как живой человек','только админ'],['2-1','супер коротко','только админ'],['1-2','супер длинно и подробно','только админ'],['111','объясняет всё буквально и в точности, шаг за шагом','только админ']];
+const PROV={
+ openrouter:{name:'OpenRouter',url:'https://openrouter.ai/api/v1/chat/completions',keys:'https://openrouter.ai/keys'},
+ gemini:{name:'Google Gemini',url:'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',models:'https://generativelanguage.googleapis.com/v1beta/openai/models',keys:'https://aistudio.google.com/apikey',pick:/gemini/},
+ claude:{name:'Claude (Anthropic)',url:'https://api.anthropic.com/v1/messages',models:'https://api.anthropic.com/v1/models',keys:'https://console.anthropic.com/settings/keys',pick:/claude/},
+ openai:{name:'ChatGPT (OpenAI)',url:'https://api.openai.com/v1/chat/completions',models:'https://api.openai.com/v1/models',keys:'https://platform.openai.com/api-keys',pick:/gpt|^o\d/},
+ grok:{name:'Grok (xAI)',url:'https://api.x.ai/v1/chat/completions',models:'https://api.x.ai/v1/models',keys:'https://console.x.ai',pick:/grok/}
+};
+function cfg(){
+  const v=PROV[P.prov]?P.prov:'openrouter',pr=PROV[v];
+  return v==='openrouter'?{v,pr,key:$('key').value.trim(),model:$('model').value}:{v,pr,key:(P.keys[v]||'').trim(),model:P.pmodel[v]||''};
+}
+function mname(){
+  if(P.prov&&P.prov!=='openrouter'&&PROV[P.prov])return PROV[P.prov].name+' · '+(P.pmodel[P.prov]||'');
+  const m=S.models.find(m=>m.id===$('model').value);return m?m.name:'неизвестна';
+}
+const MRE=/\[\[\s*запомнить\s*:\s*([^\]]+?)\s*\]\]/gi;
+const clean=t=>t.replace(/\[\[\s*запомнить[^\]]*\]\]/gi,'').replace(/\[\[[^\]]*$/,'').trim();
+const GAMEP='Если пользователь просит сделать игру: ответь коротким описанием и управлением и добавь ОДИН блок кода ```html с полной игрой. Требования: один файл, весь JS и CSS внутри, без внешних библиотек, картинок и сети; простая 2D-игра на canvas; управление стрелками, клавишами или мышью; счёт; конец игры и перезапуск; код должен работать без ошибок. ';
+const ANIMP='Если пользователь просит мультик или анимацию: ответь коротким описанием сюжета и добавь ОДИН блок кода ```html с готовой анимацией. Требования: один файл, весь JS и CSS внутри, без библиотек, картинок и сети; рисуй на canvas простыми фигурами (персонажи, предметы, фон); плавное движение через requestAnimationFrame; у сюжета есть начало, развитие и конец, всё длится 10-20 секунд; на экране подписи или реплики текстом; в конце кнопка «Повторить». Код должен работать без ошибок. ';
+const MODES={
+ friendly:'Режим «Дружеский»: общайся тепло, спокойно и дружелюбно, как хороший знакомый; иногда можно пошутить, но без геймерских словечек и игровых отсылок.',
+ serious:'Режим «Серьёзный»: отвечай серьёзно и по делу, без шуток, эмодзи и геймерских словечек.',
+ game:'Режим «Игровой»: ты жизнерадостный, энергичный ИИ-напарник с геймерской жилкой: шути, иногда вставляй игровые словечки (имба, гг, левел-ап, респавн), игровые отсылки и эмодзи, но по делу.',
+ kid:'Режим «Детский»: говори просто, тепло и доброжелательно, как с ребёнком; только безопасное и доброе, никакой грубости, ругани, насилия, страшных или взрослых тем и опасных советов. Шутки только добрые. Если вопрос не для детей, мягко откажись и предложи безопасную тему.'
+};
+const isAdmin=()=>isMax();
+const me=()=>P.nicks[P.name.toLowerCase()]||null;
+const nm=()=>{const n=me();return n&&n.nick?n.nick:P.name};
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const status=t=>$('status').textContent=t;
+const cur=()=>D.list.find(c=>c.id===D.cur);
+const save=()=>{try{localStorage.setItem('mix_chats',JSON.stringify(D,(k,v)=>k==='vid'||(k==='img'&&typeof v==='string'&&v.startsWith('data:'))?undefined:v))}catch(e){}};
+const nameIsMax=n=>{n=n.toLowerCase();return/(макс|max)/.test(n)&&/(ластовенко|востовенко|lastovenko)/.test(n)};
+const isMax=()=>nameIsMax(P.name)&&P.admin===true;
+const PH='ba57fa7739a8dbd6e2c8d7750fa99aee2c933b0de2f07c7ed9bfe592c7bb64e9';
+const normPw=s=>s.toLowerCase().replace(/\s+/g,'').replace(/собачка/g,'@').replace(/макс/g,'max');
+async function sha(t){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('mix|'+t));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
+const hello=()=>isMax()?'О, создатель, здравствуйте! 😎 Mix на связи, готов к игре.':'Привет'+(nm()?', '+nm():'')+'! Я Mix 🎮 Вставь ключ, выбери модель и пиши. «Live» — голосовой разговор, «Экран» — я увижу, что у тебя на экране.';
+
+function render(el,t){
+  el.textContent='';
+  const parts=t.split('```');
+  parts.forEach((p,i)=>{
+    if(i%2){
+      const code=p.replace(/^\w*\n/,''),pre=document.createElement('pre');pre.textContent=code;
+      if(i<parts.length-1&&/^\s*html\s*\n/i.test(p)&&/<script/i.test(code)){
+        const gb=document.createElement('div');gb.className='act';
+        const b1=document.createElement('button');b1.textContent='▶ Запустить';b1.onclick=()=>playGame(code);
+        const b2=document.createElement('button');b2.textContent='💾 Скачать файл';b2.onclick=()=>dlGame(code);
+        gb.append(b1,b2);
+        const dt=document.createElement('details'),sm=document.createElement('summary');
+        sm.textContent='Показать код';sm.style.cssText='cursor:pointer;color:var(--mut);margin-top:6px';
+        dt.append(sm,pre);el.append(gb,dt);
+      }else el.appendChild(pre);
+    }else el.appendChild(document.createTextNode(p));
+  });
+}
+function bubble(cls,text,last){
+  const d=document.createElement('div');d.className='msg '+cls;
+  const s=document.createElement('div');render(s,text);d.append(s);
+  if(cls==='ai'){const av=new Image();av.src=AV;av.className='av';d.prepend(av)}
+  if(cls==='ai'&&text!=='…'){
+    const a=document.createElement('div');a.className='act';
+    const b=document.createElement('button');b.textContent='🔊 Слушать';b.onclick=()=>speak(text,true);a.append(b);
+    const k=document.createElement('button');k.textContent='📋 Копировать';
+    k.onclick=()=>navigator.clipboard.writeText(text).then(()=>{k.textContent='✅ Скопировано';setTimeout(()=>k.textContent='📋 Копировать',1500)}).catch(()=>status('Не получилось скопировать.'));
+    a.append(k);
+    if(last){const r=document.createElement('button');r.textContent='🔄 Переписать';r.onclick=regen;a.append(r)}
+    d.append(a);
+  }
+  $('chat').append(d);return s;
+}
+function newChat(){const c={id:Date.now()+'',title:'Новый чат',msgs:[]};D.list.unshift(c);D.cur=c.id;save();draw()}
+function draw(){
+  $('list').innerHTML='';
+  const q=$('q').value.trim().toLowerCase();
+  D.list.filter(c=>!q||c.title.toLowerCase().includes(q)||c.msgs.some(m=>m.content.toLowerCase().includes(q))).forEach(c=>{
+    const d=document.createElement('div');d.className='ch'+(c.id===D.cur?' cur':'');
+    const s=document.createElement('span');s.textContent=c.title;
+    const x=document.createElement('i');x.textContent='✕';x.title='Удалить чат';
+    d.append(s,x);
+    d.onclick=e=>{
+      if(e.target===x){D.list=D.list.filter(k=>k!==c);if(!D.list.length)return newChat();if(D.cur===c.id)D.cur=D.list[0].id}
+      else D.cur=c.id;
+      save();draw();$('side').classList.remove('open');
+    };
+    $('list').append(d);
+  });
+  $('chat').innerHTML='';const c=cur();
+  if(!c.msgs.length)bubble('sys',hello());
+  c.msgs.forEach((m,i)=>{
+    const s=bubble(m.role==='user'?'me':'ai',m.role==='user'?(m.att||'')+(m.cam?'📷 ':'')+arr(m.st).map(k=>TAG[k]).join('')+m.content:m.content,i===c.msgs.length-1&&m.role==='assistant');
+    if(m.ip){
+      if(m.img){
+        const im=new Image();im.src=m.img;im.alt=m.ip;im.style.cssText='max-width:100%;border-radius:10px;display:block;margin:8px 0';
+        const dl=document.createElement('a');dl.className='btn';dl.textContent='💾 Скачать';dl.href=m.img;dl.download='mix-image.png';dl.target='_blank';dl.rel='noopener';dl.style.cssText='padding:3px 10px;font-size:14px;display:inline-block';
+        s.after(im,dl);
+        if(m.ep&&m.ep!==m.ip)dl.after(Object.assign(document.createElement('div'),{textContent:'Запрос для рисовалки: '+m.ep,className:'hint'}));
+      }else s.after(Object.assign(document.createElement('div'),{textContent:'Картинка не сохранилась (чтобы не забивать память браузера). Попроси нарисовать заново.',className:'hint'}));
+    }
+    if(m.vp){
+      if(m.vid){
+        const v=document.createElement('video');v.src=m.vid;v.controls=true;v.style.cssText='max-width:100%;border-radius:10px;display:block;margin:8px 0';
+        const dl=document.createElement('a');dl.className='btn';dl.textContent='💾 Скачать видео';dl.href=m.vid;dl.download='mix-video.mp4';dl.style.cssText='padding:3px 10px;font-size:14px;display:inline-block';
+        s.after(v,dl);
+        if(m.ep&&m.ep!==m.vp)dl.after(Object.assign(document.createElement('div'),{textContent:'Запрос для видео-модели: '+m.ep,className:'hint'}));
+      }else if(m.vj){
+        const b=document.createElement('button');b.textContent='▶ Загрузить видео заново';b.style.marginTop='6px';
+        b.onclick=async()=>{b.textContent='Загружаю…';try{m.vid=await fetchVid(m.vj);draw()}catch(e){b.textContent='Не получилось: '+e.message}};
+        s.after(b);
+      }
+    }
+    const n=me();
+    if(m.role==='user'&&n&&(n.nick||n.img)){const l=document.createElement('div');l.className='nm';if(n.img){const im=new Image();im.src=n.img;l.append(im)}l.append(n.nick||'');s.parentNode.insertBefore(l,s)}
+  });
+  $('chat').scrollTop=1e9;
+}
+
+/* ---------- модели ---------- */
+async function loadModels(){
+  try{
+    const j=await (await fetch('https://openrouter.ai/api/v1/models')).json();
+    S.models=j.data.map(m=>({id:m.id,name:m.name,free:+m.pricing.prompt===0&&+m.pricing.completion===0,vision:(m.architecture&&m.architecture.input_modalities||[]).includes('image')}));
+    fill();
+  }catch(e){status('Не удалось загрузить список моделей: '+e.message)}
+}
+function fill(){
+  const only=$('free').checked;
+  const list=S.models.filter(m=>!only||m.free).sort((a,b)=>a.name.localeCompare(b.name));
+  $('model').innerHTML=list.map(m=>`<option value="${esc(m.id)}">${m.vision?'👁 ':''}${esc(m.name)}${m.free?' (бесплатно)':''}</option>`).join('');
+  if(list.some(m=>m.id===P.model))$('model').value=P.model;
+}
+
+/* ---------- голос (озвучка) ---------- */
+function loadVoices(){S.voices=speechSynthesis.getVoices();fillVoices()}
+function fillVoices(){
+  if(!S.voices.length)return;
+  const p=P.lang.slice(0,2).toLowerCase();
+  let l=S.voices.filter(v=>v.lang.replace('_','-').toLowerCase().startsWith(p));if(!l.length)l=S.voices;
+  $('voice').innerHTML=l.map(v=>`<option value="${esc(v.voiceURI)}">${esc(v.name)} (${esc(v.lang)})</option>`).join('');
+  if(l.some(v=>v.voiceURI===P.voice))$('voice').value=P.voice;else P.voice=$('voice').value;
+}
+function dedupe(text){
+  if(P.dedup==='off'||text.length>2000||text.includes('```'))return text;
+  const parts=text.split(/(\s+)/),n=Math.ceil(parts.length/2),W=i=>parts[i*2];
+  const norm=s=>s.toLowerCase().replace(/[.,!?;:…"«»()\-—]/g,'');
+  const runs=[];let i=0;
+  while(i<n){const a=norm(W(i));let k=1;if(a)while(i+k<n&&norm(W(i+k))===a)k++;if(k>1)runs.push({i,k,w:W(i)});i+=k}
+  if(!runs.length)return text;
+  const mid=runs.filter(r=>r.k<4),big=runs.filter(r=>r.k>=4);
+  let keepMid=false;
+  if(mid.length){
+    if(P.dedup==='ask'&&!S.live)keepMid=confirm('Слова повторяются подряд: '+mid.map(r=>'«'+r.w+'» ×'+r.k).join(', ')+'.\nТочно так и хочешь?\nОК: оставить как есть. Отмена: убрать лишние повторы.');
+    else keepMid=S.live&&P.dedup==='ask';
+  }
+  const rm=new Set(),drop=r=>{for(let j=1;j<r.k;j++)rm.add(r.i+j)};
+  big.forEach(drop);if(!keepMid)mid.forEach(drop);
+  if(!rm.size)return text;
+  let out='';
+  for(let j=0;j<n;j++){if(rm.has(j))continue;out+=(out?parts[j*2-1]||' ':'')+W(j)}
+  return out;
+}
+const GMETA='<meta http-equiv="Content-Security-Policy" content="default-src \'none\'; script-src \'unsafe-inline\'; style-src \'unsafe-inline\'; img-src data: blob:; media-src data: blob:; font-src data:">';
+const GSHIM='<script>(function(){function mk(){var d={};return{getItem:function(k){return k in d?d[k]:null},setItem:function(k,v){d[k]=String(v)},removeItem:function(k){delete d[k]},clear:function(){d={}},key:function(i){return Object.keys(d)[i]||null},get length(){return Object.keys(d).length}}}try{Object.defineProperty(window,"localStorage",{value:mk(),configurable:true});Object.defineProperty(window,"sessionStorage",{value:mk(),configurable:true})}catch(e){}window.addEventListener("error",function(e){parent.postMessage({mixErr:e.message},"*")});window.addEventListener("unhandledrejection",function(e){parent.postMessage({mixErr:String(e.reason)},"*")});document.addEventListener("securitypolicyviolation",function(e){parent.postMessage({mixErr:"заблокировано: "+e.blockedURI},"*")})})()<\/script>';
+const GPROBE='<script>setTimeout(function(){var r="ok";try{var cs=document.querySelectorAll("canvas"),any=false,blank=true;for(var i=0;i<cs.length;i++){var c=cs[i];if(!c.width||!c.height)continue;any=true;var x=c.getContext("2d");if(!x){blank=false;continue}var d=x.getImageData(0,0,c.width,c.height).data,same=true;for(var p=4;p<d.length;p+=4){if(d[p]!==d[0]||d[p+1]!==d[1]||d[p+2]!==d[2]||d[p+3]!==d[3]){same=false;break}}if(!same)blank=false}var txt=(document.body.innerText||"").trim(),els=document.querySelectorAll("svg,img,button,input,video,table");if(any&&blank&&!txt&&!els.length)r="blank";if(!any&&!txt&&!els.length)r="blank"}catch(e){}parent.postMessage({mixProbe:r},"*")},1800)<\/script>';
+function gameDoc(code,probe){const inj=GMETA+GSHIM+(probe?GPROBE:'');return /<head[^>]*>/i.test(code)?code.replace(/<head[^>]*>/i,m=>m+inj):inj+code}
+function playGame(code){
+  $('gerr').textContent='';
+  $('gf').onload=()=>{try{$('gf').contentWindow.focus()}catch(e){}};
+  $('gf').srcdoc=gameDoc(code);
+  $('gamed').showModal();
+}
+function dlGame(code){
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([code],{type:'text/html'}));
+  a.download='mix-game.html';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+}
+function pzUI(){
+  $('pz').style.display=S.speaking?'inline-block':'none';
+  $('pz').textContent=S.paused?'▶ Продолжить':'⏸ Пауза';
+  if(S.paused)status('⏸ Mix на паузе: нажми «Продолжить» или просто скажи/напиши что-нибудь, и он замолчит.');
+  else if($('status').textContent.startsWith('⏸'))status('');
+}
+function stopSpeech(){S.u=null;S.speaking=false;S.paused=false;speechSynthesis.cancel();speechSynthesis.resume();pzUI()}
+function speak(t,tog){
+  if(tog&&S.speaking){stopSpeech();return}
+  stopSpeech();
+  const u=new SpeechSynthesisUtterance(t.replace(/```[\s\S]*?```/g,' ').replace(/[*#_`]/g,''));
+  u.lang=P.lang;const v=S.voices.find(v=>v.voiceURI===P.voice);if(v)u.voice=v;
+  u.onend=u.onerror=()=>{if(S.u!==u)return;S.speaking=false;S.paused=false;pzUI();if(S.live)listen()};
+  S.u=u;S.speaking=true;speechSynthesis.speak(u);pzUI();
+}
+
+/* ---------- запрос к модели ---------- */
+function frame(){
+  const v=$('screen');
+  if(!S.stream||!v.videoWidth)return null;
+  const k=Math.min(1,1024/v.videoWidth),c=document.createElement('canvas');
+  c.width=v.videoWidth*k;c.height=v.videoHeight*k;
+  c.getContext('2d').drawImage(v,0,0,c.width,c.height);
+  return c.toDataURL('image/jpeg',.6);
+}
+function fail(msg){status(msg);$('tools').classList.add('open');if(S.live)setLive(false)}
+function memPrompt(q,cid){
+  if(!P.memOn)return '';
+  let r='Память: если пользователь сообщает о себе что-то важное и надолго (имя, увлечения, предпочтения, планы, проекты) или просит что-то запомнить, в самом конце ответа добавь отдельной строкой тег [[запомнить: короткий факт]] (можно несколько). Не упоминай тег в тексте. Не запоминай пароли, ключи, номера карт и другое чувствительное. ';
+  if(P.mem.length)r+='Что ты уже помнишь о пользователе: '+P.mem.join('; ')+'. ';
+  const w=[...new Set((q||'').toLowerCase().match(/[\p{L}\d]{4,}/gu)||[])],hits=[];
+  if(w.length)D.list.forEach(c=>{if(c.id!==cid)c.msgs.forEach(m=>{
+    const t=m.content.toLowerCase(),sc=w.filter(x=>t.includes(x.slice(0,Math.max(4,x.length-2)))).length;
+    if(sc>=Math.min(2,w.length))hits.push([sc,c.title,m.role,m.content]);
+  })});
+  hits.sort((a,b)=>b[0]-a[0]);
+  if(hits.length)r+='Фрагменты из прошлых чатов (используй, только если уместно): '+hits.slice(0,4).map(h=>'['+h[1]+'] '+(h[2]==='user'?'пользователь':'Mix')+': '+h[3].slice(0,250)).join(' | ')+'. ';
+  return r;
+}
+function sysPrompt(st,re,q,cid){
+  const m=S.models.find(m=>m.id===$('model').value),L=(LANGS.find(l=>l[0]===P.lang)||[0,'Русский'])[1];
+  return 'Тебя зовут Mix (Микс). '+(MODES[P.mode]||MODES.game)+' Твой создатель — Максим (Макс) Ластовенко. Если спросят, кто тебя создал, отвечай, что ты Mix, а создал тебя Максим Ластовенко. Если спросят, какая модель у тебя под капотом, назови: '+mname()+'. '
+  +'Отвечай на языке «'+L+'», если пользователь не просит другой. '
+  +(nm()?'Пользователя зовут '+nm()+'. ':'')+(isMax()?'Это твой создатель, общайся с ним тепло и с уважением. ':'')
+  +'Если приложен снимок экрана, это то, что пользователь сейчас показывает: обсуждай его. Ты умеешь рисовать картинки: чтобы нарисовать, пользователь должен начать сообщение со слова «нарисуй» или нажать кнопку 🎨. Ты умеешь снимать видео: для этого нужно начать сообщение со слов «сними видео» или нажать кнопку 🎬 (по умолчанию бесплатный мультик кодом; настоящее видео платное через Pollinations или OpenRouter). '
+  +(/верси|нов[оы]|добав|обновл/i.test(q||'')?'Список изменений Mix (текущая версия '+VER+'; отвечай по нему, когда спрашивают, что нового или что добавилось в какой-то версии): '+LOG+' ':'')+memPrompt(q,cid)+(/игр|game/i.test(q||'')?GAMEP:'')+(/мульт|анимаци|animation|cartoon/i.test(q||'')?ANIMP:'')+(S.live?'Сейчас голосовой режим: отвечай коротко, без markdown и списков. ':'')
+  +(re?'Пользователь просит переписать последний ответ: дай другую, чуть лучшую версию. ':'')+arr(st).map(k=>STY[k]).join(' ')+(arr(st).length>1?' Если эти указания противоречат друг другу, главнее та, что идёт позже.':'');
+}
+function undo(c,prev){
+  if(prev)c.msgs.push(prev);else{const u=c.msgs.pop();$('text').value=u.content;grow();const at=IMG.get(u);if(at){A=at.items;drawAtt()}}
+  draw();
+}
+async function ask(prev){
+  const c=cur(),cf=cfg(),key=cf.key,model=cf.model,last=c.msgs[c.msgs.length-1];
+  if(!key){undo(c,prev);return fail(cf.v==='openrouter'?'Вставь API-ключ OpenRouter сверху.':'Вставь ключ ('+cf.pr.name+') в разделе 🔌.')}
+  if(!model){undo(c,prev);return fail(cf.v==='openrouter'?'Выбери модель.':'Выбери модель в разделе 🔌.')}
+  S.busy=true;status('');
+  const img=frame();last.cam=!!img;draw();
+  const out=bubble('ai','…');$('chat').scrollTop=1e9;
+  let hist=c.msgs.slice(0,-1).map(m=>({role:m.role,content:m.content}));
+  let tot=0,k=hist.length;
+  while(k>0&&tot+hist[k-1].content.length<16000)tot+=hist[--k].content.length;
+  hist=hist.slice(k);while(hist.length&&hist[0].role!=='user')hist.shift();
+  const at=IMG.get(last),imgs=[...(at?at.imgs:[]),...(img?[img]:[])];
+  const content=imgs.length?[{type:'text',text:last.content+(at?'\n\n'+at.hint:'')},...imgs.map(u=>({type:'image_url',image_url:{url:u}}))]:last.content;
+  const msgs=[{role:'system',content:sysPrompt(last.st,!!prev,last.content,c.id)},...hist,{role:'user',content}];
+  let full='';
+  try{
+    let hd,body;
+    if(cf.v==='claude'){
+      const cv=m=>typeof m.content==='string'?m.content:m.content.map(p=>p.type==='text'?p:{type:'image',source:{type:'base64',media_type:'image/jpeg',data:p.image_url.url.split(',')[1]}});
+      body={model,max_tokens:8000,system:msgs[0].content,messages:msgs.slice(1).map(m=>({role:m.role,content:cv(m)})),stream:true};
+      hd={'x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true','Content-Type':'application/json'};
+    }else{
+      body={model,messages:msgs,stream:true};
+      hd={'Authorization':'Bearer '+key,'Content-Type':'application/json'};
+      if(cf.v==='openrouter')hd['X-Title']='Mix';
+    }
+    const r=await fetch(cf.pr.url,{method:'POST',headers:hd,body:JSON.stringify(body)});
+    if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error((e.error&&e.error.message)||('Ошибка '+r.status))}
+    const rd=r.body.getReader(),dec=new TextDecoder();let buf='';
+    for(;;){
+      const {done,value}=await rd.read();if(done)break;
+      buf+=dec.decode(value,{stream:true});
+      const lines=buf.split('\n');buf=lines.pop();
+      for(const l of lines){
+        if(!l.startsWith('data: ')||l.includes('[DONE]'))continue;
+        let d;try{d=JSON.parse(l.slice(6))}catch(e){continue}
+        if(d.error)throw new Error(d.error.message||'Ошибка модели');
+        const t=cf.v==='claude'?(d.delta&&d.delta.text):(d.choices&&d.choices[0]&&d.choices[0].delta&&d.choices[0].delta.content);
+        if(t){full+=t;render(out,clean(full));$('chat').scrollTop=1e9}
+      }
+    }
+    if(!full)throw new Error('Пустой ответ. Попробуй другую модель.');
+    if(P.memOn){for(const f of full.matchAll(MRE)){const t=f[1].trim();if(t&&!P.mem.some(x=>x.toLowerCase()===t.toLowerCase()))P.mem.push(t.slice(0,200))}P.mem=P.mem.slice(-60);sv('mix_p',P)}
+    full=clean(full)||'Запомнил! 🧠';
+    full=await verifyGames(full,msgs,out);
+    c.msgs.push({role:'assistant',content:full});save();draw();
+  }catch(e){
+    status('⚠ '+e.message+' — если закончились лимиты, выбери другую модель или подключи своего провайдера (кнопка 🔌).');
+    undo(c,prev);full='';
+  }
+  S.busy=false;
+  if(S.live){full?speak(full):listen()}else if(full&&P.auto)speak(full);
+}
+function send(text){
+  text=text.trim();if((!text&&!A.length)||S.busy)return;
+  stopSpeech();
+  text=dedupe(text);
+  const vp=text&&vidReq(text);
+  if(vp){if(P.vidsrc==='code'){setVid(false);text='Сделай мультик: '+vp}else return genVideo(vp)}
+  const ip=text&&imgReq(text);if(ip)return genImage(ip);
+  if(!text)text='Посмотри и расскажи, что тут.';
+  const c=cur(),st=[];let m;
+  while((m=text.match(/^(1-2|2-1|111|16|6)(?:\s*,\s*|\s+)([\s\S]+)/))){const k=m[1].replace(',','.');if(!isAdmin()&&!ALLOW.includes(k))break;if(!st.includes(k))st.push(k);text=m[2]}
+  if(!c.msgs.length)c.title=text.slice(0,28);
+  const u={role:'user',content:text,st};
+  if(A.length){
+    u.att=A.map(a=>'📎 '+a.name).join(', ')+'\n';
+    IMG.set(u,{items:A,imgs:A.flatMap(a=>a.imgs),hint:A.map(a=>'[Вложение «'+a.name+'»: '+(a.vid?a.imgs.length+' кадров из видео по порядку, звука нет':'картинка')+']').join('\n')});
+    A=[];drawAtt();
+  }
+  c.msgs.push(u);
+  ask();
+}
+function regen(){
+  if(S.busy)return;
+  const c=cur(),prev=c.msgs.pop();
+  if(!prev||prev.role!=='assistant'){if(prev)c.msgs.push(prev);return}
+  if(prev.vp){
+    if(P.vidsrc==='or'){c.msgs.push(prev);status('Видео платное, поэтому заново я его не запускаю. Напиши новый запрос.');return}
+    c.msgs.pop();genVideoPol(prev.vp);return;
+  }
+  if(prev.ip){genImage(prev.ip,prev);return}
+  ask(prev);
+}
+
+/* ---------- Live: слушаем ---------- */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+function listen(){
+  if(!S.live||S.busy||(S.speaking&&!S.paused))return;
+  try{S.rec.start();status('🎙 Слушаю… говори')}catch(e){}
+}
+function setLive(on){
+  if(on&&!SR)return status('Голосовой режим работает в Chrome или Edge.');
+  if(on)dictStop();
+  S.live=on;
+  $('live').classList.toggle('on',on);
+  $('live').textContent=on?'■ Стоп':'🎙 Live';
+  if(on){
+    S.rec=new SR();S.rec.lang=P.lang;S.rec.interimResults=true;
+    let fin='';
+    S.rec.onresult=e=>{fin=[...e.results].map(r=>r[0].transcript).join('');$('text').value=fin};
+    S.rec.onend=()=>{const t=fin.trim();fin='';$('text').value='';if(!S.live)return;t?send(t):setTimeout(listen,300)};
+    S.rec.onerror=e=>{if(e.error==='not-allowed'||e.error==='service-not-allowed'){setLive(false);status('Нет доступа к микрофону — разреши его в браузере.')}};
+    listen();
+  }else{
+    try{S.rec.abort()}catch(e){}
+    stopSpeech();status('');
+  }
+}
+
+/* ---------- показ экрана ---------- */
+function stopScreen(){
+  if(S.stream)S.stream.getTracks().forEach(t=>t.stop());
+  S.stream=null;$('screen').srcObject=null;$('screen').style.display='none';
+  $('share').classList.remove('on');$('share').textContent='🖥 Экран';
+}
+async function toggleScreen(){
+  if(S.stream)return stopScreen();
+  try{S.stream=await navigator.mediaDevices.getDisplayMedia({video:true})}
+  catch(e){return status('Показ экрана не включён.')}
+  const v=$('screen');v.srcObject=S.stream;v.style.display='block';
+  $('share').classList.add('on');$('share').textContent='■ Стоп экран';
+  S.stream.getVideoTracks()[0].onended=stopScreen;
+  const m=S.models.find(m=>m.id===$('model').value);
+  if((P.prov&&P.prov!=='openrouter')||(m&&m.vision))return status('Mix видит твой экран: он смотрит на него при каждом сообщении.');
+  const o=[...$('model').options].find(o=>o.text.startsWith('👁'));
+  if(o){$('model').value=o.value;P.model=o.value;sv('mix_p',P);status('Переключил на модель, которая видит картинки: '+o.text)}
+  else status('В списке нет моделей с «глазом» 👁 — сними галочку «бесплатные».');
+}
+
+/* ---------- диктовка и вложения ---------- */
+const IMG=new WeakMap(),Dc={on:false,r:null};let A=[];
+function grow(){const t=$('text');t.style.height='auto';t.style.height=Math.min(t.scrollHeight,140)+'px'}
+function dictUI(on){$('mic').classList.toggle('on',on);$('mic').textContent=on?'⏹':'🎤';$('look').style.display=on?'inline-block':'none'}
+function dictStart(){
+  if(!SR)return status('Микрофон работает в Chrome или Edge.');
+  if(S.live)setLive(false);
+  Dc.on=true;dictUI(true);
+  status('🎤 Записываю, говори сколько нужно. «Отправить» отправит, «Посмотреть» остановит запись и покажет текст.');
+  const run=()=>{
+    const r=new SR();Dc.r=r;r.lang=P.lang;r.continuous=true;r.interimResults=true;
+    let base=$('text').value;if(base&&!/\s$/.test(base))base+=' ';
+    r.onresult=e=>{let t='';const n=e.results.length;for(let i=0;i<n;i++){const x=e.results[i];if(x.isFinal||i===n-1)t+=x[0].transcript}$('text').value=base+t;grow()};
+    r.onerror=e=>{if(['not-allowed','service-not-allowed','network'].includes(e.error)){Dc.on=false;dictUI(false);status(e.error==='network'?'Нет связи с сервисом распознавания речи.':'Нет доступа к микрофону: разреши его в браузере.')}};
+    r.onend=()=>{if(Dc.on)setTimeout(()=>{if(Dc.on)run()},250)};
+    try{r.start()}catch(e){}
+  };
+  run();
+}
+function dictStop(cb){
+  if(!Dc.on){if(cb)cb();return}
+  Dc.on=false;dictUI(false);
+  const r=Dc.r;r.onend=()=>{if(cb)cb()};
+  try{r.stop()}catch(e){if(cb)cb()}
+}
+function shrink(src,max){return new Promise(res=>{const i=new Image();i.onload=()=>{const k=Math.min(1,max/Math.max(i.width,i.height)),c=document.createElement('canvas');c.width=i.width*k;c.height=i.height*k;c.getContext('2d').drawImage(i,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',.7))};i.onerror=()=>res(null);i.src=src})}
+async function vidFrames(url){
+  const v=document.createElement('video');v.muted=true;v.preload='auto';v.src=url;
+  await new Promise((ok,no)=>{v.onloadedmetadata=ok;v.onerror=no});
+  if(!isFinite(v.duration))throw 0;
+  const n=5,out=[],c=document.createElement('canvas'),k=Math.min(1,768/Math.max(v.videoWidth,v.videoHeight));
+  c.width=v.videoWidth*k;c.height=v.videoHeight*k;
+  for(let i=1;i<=n;i++){
+    const p=new Promise(ok=>v.onseeked=ok);v.currentTime=v.duration*i/(n+1);await p;
+    c.getContext('2d').drawImage(v,0,0,c.width,c.height);out.push(c.toDataURL('image/jpeg',.6));
+  }
+  return out;
+}
+function drawAtt(){
+  $('att').innerHTML='';
+  A.forEach((a,i)=>{
+    const d=document.createElement('div');d.className='chip';
+    const im=new Image();im.src=a.imgs[0];
+    const s=document.createElement('span');s.textContent=(a.vid?'🎬 ':'')+a.name;
+    const x=document.createElement('i');x.textContent='✕';x.onclick=()=>{A.splice(i,1);drawAtt()};
+    d.append(im,s,x);$('att').append(d);
+  });
+}
+function ensureVision(){
+  const m=S.models.find(m=>m.id===$('model').value);
+  if((P.prov&&P.prov!=='openrouter')||(m&&m.vision))return status('Вложение готово. Напиши вопрос или просто нажми «Отправить».');
+  const o=[...$('model').options].find(o=>o.text.startsWith('👁'));
+  if(o){$('model').value=o.value;P.model=o.value;sv('mix_p',P);status('Переключил на модель, которая видит картинки: '+o.text)}
+  else status('В списке нет моделей с «глазом» 👁: сними галочку «бесплатные».');
+}
+
+/* ---------- запуск ---------- */
+$('lang').innerHTML=LANGS.map(l=>`<option value="${l[0]}">${esc(l[1])}</option>`).join('');
+$('key').value=P.key;
+$('key').onchange=()=>{P.key=$('key').value.trim();sv('mix_p',P)};
+$('model').onchange=()=>{P.model=$('model').value;sv('mix_p',P)};
+$('free').onchange=fill;
+$('share').onclick=toggleScreen;
+$('live').onclick=()=>setLive(!S.live);
+$('send').onclick=()=>dictStop(()=>{if(S.busy)return;const t=$('text').value;$('text').value='';grow();send(t)});
+$('mic').onclick=()=>Dc.on?dictStop(()=>{$('text').focus();status('')}):dictStart();
+$('look').onclick=()=>dictStop(()=>{$('text').focus();status('')});
+$('text').oninput=grow;
+$('clip').onclick=()=>$('file').click();
+$('file').onchange=async e=>{
+  const files=[...e.target.files].slice(0,Math.max(0,4-A.length));e.target.value='';
+  let bad='';
+  status('Обрабатываю файлы…');
+  const got=await Promise.all(files.map(async f=>{
+    const url=URL.createObjectURL(f),vid=f.type.startsWith('video');
+    try{const imgs=vid?await vidFrames(url):[await shrink(url,1024)];if(!imgs[0])throw 0;return{name:f.name,vid,imgs}}
+    catch(x){bad+=' «'+f.name+'»';return null}
+    finally{URL.revokeObjectURL(url)}
+  }));
+  got.forEach(a=>{if(a)A.push(a)});
+  drawAtt();
+  if(bad)return status('Не удалось открыть:'+bad);
+  if(A.length)ensureVision();else status('');
+};
+$('text').onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();$('send').click()}};
+$('menu').onclick=()=>$('side').classList.toggle('open');
+$('new').onclick=()=>{if(cur().msgs.length)newChat();$('side').classList.remove('open')};
+$('gear').onclick=()=>{$('name').value=P.name;$('lang').value=P.lang;$('auto').checked=P.auto;$('memon').checked=P.memOn;$('mode').value=P.mode;$('dedup').value=P.dedup;$('apass').value='';$('pbx').style.display=nameIsMax(P.name)?'block':'none';$('imgsrc').value=P.imgsrc;$('imgtr').checked=P.imgtr;$('dev').value=P.dev;$('vidsrc').value=P.vidsrc;$('polvid').value=P.polvid;$('polkey').value=P.polkey;showVidSrc();showImgModel();$('hint').innerHTML=isAdmin()?'Ты админ: все команды и подробности в 🛠 Админ-панели.':'Режим, язык и голос Mix выбираются здесь, в настройках.';fillVoices();$('set').showModal()};
+$('lang').onchange=()=>{P.lang=$('lang').value;fillVoices()};
+$('ok').onclick=async()=>{
+  const was=isMax();
+  P.name=$('name').value.trim();
+  if(nameIsMax(P.name)){const pw=$('apass').value;if(pw){P.admin=(await sha(normPw(pw)))===PH;if(!P.admin)status('Неверный пароль админа.')}}else P.admin=false;
+  $('apass').value='';P.lang=$('lang').value;P.voice=$('voice').value;P.auto=$('auto').checked;P.memOn=$('memon').checked;P.mode=$('mode').value;P.dedup=$('dedup').value;P.imgsrc=$('imgsrc').value;P.imgtr=$('imgtr').checked;P.vidmodel=$('vidmodel').value||P.vidmodel;P.vidsec=+$('vidsec').value||P.vidsec;P.vidsrc=$('vidsrc').value;P.polvid=$('polvid').value;P.polkey=$('polkey').value.trim();P.imgmodel=$('imgmodel').value||P.imgmodel;
+  sv('mix_p',P);$('set').close();uiAdmin();draw();
+  if(isMax()&&!was)speak('О, создатель, здравствуйте!');
+};
+function uiAdmin(){
+  $('adm').style.display=isAdmin()?'inline-block':'none';
+  $('text').placeholder=document.body.classList.contains('phone')?'Напиши Mix…':isAdmin()?'Напиши Mix…  (команды: 6, 16, 2-1, 1-2, 111 и пробел)':'Напиши Mix…';
+}
+function drawNicks(){
+  $('nlist').innerHTML='';
+  Object.entries(P.nicks).forEach(([k,v])=>{
+    const d=document.createElement('div');d.className='chip';d.style.maxWidth='none';d.style.marginTop='6px';
+    if(v.img){const im=new Image();im.src=v.img;d.append(im)}
+    const s=document.createElement('span');s.textContent=k+' → '+(v.nick||'(только картинка)');
+    const x=document.createElement('i');x.textContent='✕';x.onclick=()=>{delete P.nicks[k];sv('mix_p',P);drawNicks();draw()};
+    d.append(s,x);$('nlist').append(d);
+  });
+}
+$('adm').onclick=()=>{
+  $('cmds').innerHTML=CMD.map(c=>`<tr><td><b>${esc(c[0])}</b></td><td>${esc(c[1])} <span class="hint">(${c[2]})</span></td></tr>`).join('');
+  drawNicks();$('admd').showModal();
+};
+$('aclose').onclick=()=>$('admd').close();
+$('nsave').onclick=async()=>{
+  const k=($('ntarget').value.trim()||P.name).toLowerCase(),nick=$('nnick').value.trim(),f=$('nimg').files[0];
+  if(!k)return;
+  const img=f?await shrink(URL.createObjectURL(f),96):((P.nicks[k]&&P.nicks[k].img)||'');
+  if(!nick&&!img)delete P.nicks[k];else P.nicks[k]={nick,img:img||''};
+  sv('mix_p',P);$('ntarget').value='';$('nnick').value='';$('nimg').value='';drawNicks();draw();
+};
+function uiProv(){
+  const o=!P.prov||P.prov==='openrouter';
+  $('key').disabled=$('model').disabled=$('free').disabled=!o;
+  $('ptag').textContent=o?'':PROV[P.prov].name+' · '+(P.pmodel[P.prov]||'модель не выбрана');
+}
+function pvFill(){
+  const v=$('pv').value,o=v==='openrouter';
+  $('pbox').style.display=o?'none':'block';$('pstat').textContent='';if(o)return;
+  $('plink').href=PROV[v].keys;$('pkey').value=P.keys[v]||'';$('pmt').value='';
+  const cur=P.pmodel[v]||'';$('pm').innerHTML=cur?`<option>${esc(cur)}</option>`:'';
+}
+$('pv').innerHTML=Object.entries(PROV).map(([k,p])=>`<option value="${k}">${esc(p.name)}${k==='openrouter'?' (по умолчанию)':''}</option>`).join('');
+$('prov').onclick=()=>{$('pv').value=PROV[P.prov]?P.prov:'openrouter';pvFill();$('provd').showModal()};
+$('pv').onchange=pvFill;
+$('pload').onclick=async()=>{
+  const v=$('pv').value,pr=PROV[v],key=$('pkey').value.trim();
+  if(!key)return $('pstat').textContent='Сначала вставь ключ.';
+  $('pstat').textContent='Загружаю список…';
+  try{
+    const h=v==='claude'?{'x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'}:{Authorization:'Bearer '+key};
+    const j=await (await fetch(pr.models,{headers:h})).json();
+    if(j.error)throw new Error(j.error.message||'ошибка');
+    const ids=(j.data||[]).map(m=>m.id.replace(/^models\//,'')).filter(id=>pr.pick.test(id)&&!/embed|tts|whisper|image|audio|transcribe|moderation|realtime|dall|imagen|veo|aqa/.test(id)).sort();
+    if(!ids.length)throw new Error('моделей не нашлось');
+    $('pm').innerHTML=ids.map(id=>`<option>${esc(id)}</option>`).join('');
+    if(ids.includes(P.pmodel[v]))$('pm').value=P.pmodel[v];
+    $('pstat').textContent='Нашёл моделей: '+ids.length+'. Выбери одну и нажми «Готово».';
+  }catch(e){$('pstat').textContent='Не получилось: '+e.message+'. Можно вписать название модели вручную.'}
+};
+$('pok').onclick=()=>{
+  const v=$('pv').value;P.prov=v;
+  if(v!=='openrouter'){P.keys[v]=$('pkey').value.trim();P.pmodel[v]=$('pmt').value.trim()||$('pm').value||''}
+  sv('mix_p',P);uiProv();$('provd').close();
+};
+function drawMem(){
+  $('mlist').innerHTML='';
+  if(!P.mem.length)$('mlist').textContent='Пока ничего не запомнил.';
+  P.mem.forEach((f,i)=>{
+    const d=document.createElement('div');d.className='chip';d.style.maxWidth='none';d.style.marginTop='6px';
+    const s=document.createElement('span');s.style.whiteSpace='normal';s.textContent=f;
+    const x=document.createElement('i');x.textContent='✕';x.onclick=()=>{P.mem.splice(i,1);sv('mix_p',P);drawMem()};
+    d.append(s,x);$('mlist').append(d);
+  });
+}
+$('memb').onclick=()=>{$('set').close();drawMem();$('memd').showModal()};
+$('madd').onclick=()=>{const t=$('mnew').value.trim();if(t){P.mem.push(t.slice(0,200));sv('mix_p',P);$('mnew').value='';drawMem()}};
+$('mclr').onclick=()=>{if(confirm('Стереть всю память Mix?')){P.mem=[];sv('mix_p',P);drawMem()}};
+$('mclose').onclick=()=>$('memd').close();
+$('gclose').onclick=()=>$('gamed').close();
+addEventListener('message',e=>{if(e.source===$('gf').contentWindow&&e.data&&e.data.mixErr)$('gerr').textContent='Игра сообщила об ошибке: '+e.data.mixErr+'. Скачай игру или нажми «🔄 Переписать».'});
+$('gamed').onclose=()=>{$('gf').srcdoc=''};
+$('pz').onclick=()=>{
+  if(S.paused){S.paused=false;speechSynthesis.resume();if(S.live)try{S.rec.abort()}catch(e){}}
+  else{S.paused=true;speechSynthesis.pause();listen()}
+  pzUI();
+};
+S.imgModels=[];S.imgMode=false;
+function setImg(on){
+  S.imgMode=on;$('imgb').classList.toggle('on',on);
+  if(on)status('🎨 Опиши картинку и нажми «Отправить». Можно и без кнопки: начни сообщение со слова «нарисуй».');
+  else if($('status').textContent.startsWith('🎨 Опиши'))status('');
+}
+function imgReq(t){
+  if(S.imgMode)return t;
+  const m=t.match(/^(?:нарисуй|нарисуйте|draw|imagine)\s+([\s\S]+)/i)||t.match(/^(?:сгенерируй|создай|сделай)\s+(?:мне\s+)?(?:картинку|изображение|рисунок|арт|фото)\s*(?:с|на|про|где|:|-)?\s*([\s\S]+)/i);
+  return m?m[1].trim():'';
+}
+function fillImg(){
+  $('imgmodel').innerHTML=S.imgModels.map(m=>`<option value="${esc(m.id)}">${esc(m.name)}</option>`).join('');
+  if(S.imgModels.some(m=>m.id===P.imgmodel))$('imgmodel').value=P.imgmodel;
+}
+async function loadImgModels(){
+  if(S.imgModels.length)return fillImg();
+  try{
+    const j=await (await fetch('https://openrouter.ai/api/v1/models?output_modalities=image')).json();
+    S.imgModels=j.data.map(m=>({id:m.id,name:m.name,text:((m.architecture&&m.architecture.output_modalities)||[]).includes('text')}));
+    fillImg();
+  }catch(e){status('Не удалось загрузить список моделей для картинок.')}
+}
+function showImgModel(){
+  const o=$('imgsrc').value==='or';
+  $('imgmodel').style.display=o?'block':'none';
+  if(o)loadImgModels();
+}
+async function quick(sys,user){
+  const cf=cfg(),cl=cf.v==='claude';
+  const body=cl?{model:cf.model,max_tokens:200,system:sys,messages:[{role:'user',content:user}]}:{model:cf.model,max_tokens:200,messages:[{role:'system',content:sys},{role:'user',content:user}]};
+  const hd=cl?{'x-api-key':cf.key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true','Content-Type':'application/json'}:{'Authorization':'Bearer '+cf.key,'Content-Type':'application/json'};
+  const j=await (await fetch(cf.pr.url,{method:'POST',headers:hd,body:JSON.stringify(body)})).json();
+  if(j.error)throw new Error(j.error.message||'ошибка');
+  return (cl?(j.content&&j.content[0]&&j.content[0].text):(j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content))||'';
+}
+async function imgPrompt(t,v){
+  const cf=cfg();
+  if(!P.imgtr||!cf.key||!cf.model||(/^[\x00-\x7F]+$/.test(t)&&t.length<80))return t;
+  try{
+    const r=(await quick(v?'Ты помощник для генератора видео. Из сообщения пользователя выдели, что именно нужно снять, и напиши ОДНО короткое описание видео на английском (до 40 слов): сцена, действие и движение, камера, стиль. Игнорируй болтовню и оценки. Отвечай только описанием, без кавычек.':'Ты помощник для генератора картинок. Из сообщения пользователя выдели, что именно нужно нарисовать, и напиши ОДНО короткое описание картинки на английском (до 35 слов): предмет, фон, стиль. Игнорируй болтовню, оценки и обращения. Отвечай только описанием, без кавычек и пояснений.',t)).trim().replace(/^["«]|["»]$/g,'').slice(0,400);
+    return r||t;
+  }catch(e){return t}
+}
+S.vidModels=[];S.vidMode=false;
+function setVid(on){
+  S.vidMode=on;$('vidb').classList.toggle('on',on);
+  if(on)status('🎬 Опиши видео и нажми «Отправить».'+(P.vidsrc==='or'?' Это платно: Mix сначала покажет цену.':P.vidsrc==='code'?' Бесплатно: Mix нарисует мультик кодом, его можно запустить в чате.':' Нужен ключ Pollinations (в ⚙), видео платное пыльцой. Ролик на 5 секунд.')+' Можно и без кнопки: «сними видео…».');
+  else if($('status').textContent.startsWith('🎬 Опиши'))status('');
+}
+function vidReq(t){
+  if(S.vidMode)return t;
+  const m=t.match(/^(?:сними|сделай|создай|сгенерируй|запусти)\s+(?:мне\s+)?(?:видео|видос|ролик|клип)\s*,?\s*(?:про|где|с|на|:|-)?\s*([\s\S]+)/i)||t.match(/^видео\s*[:\-]\s*([\s\S]+)/i);
+  return m?m[1].trim():'';
+}
+const vprice=m=>{const a=Object.entries((m&&m.pricing_skus)||{}).filter(([k,v])=>/per-video-second/.test(k)&&+v>0).map(([k,v])=>+v);return a.length?Math.min(...a):0};
+function fillSec(){
+  const m=S.vidModels.find(x=>x.id===$('vidmodel').value),d=(m&&m.supported_durations)||[];
+  $('vidsec').innerHTML=d.map(x=>`<option value="${x}">${x} сек</option>`).join('');
+  if(d.includes(P.vidsec))$('vidsec').value=P.vidsec;
+}
+function fillVid(){
+  $('vidmodel').innerHTML=S.vidModels.map(m=>{const p=vprice(m);return `<option value="${esc(m.id)}">${esc(m.name||m.id)}${p?' · от $'+p+'/сек':''}</option>`}).join('');
+  if(S.vidModels.some(m=>m.id===P.vidmodel))$('vidmodel').value=P.vidmodel;
+  fillSec();
+}
+async function loadVidModels(){
+  if(S.vidModels.length)return fillVid();
+  try{const j=await (await fetch('https://openrouter.ai/api/v1/videos/models')).json();S.vidModels=j.data||[];fillVid()}
+  catch(e){status('Не удалось загрузить список видео-моделей.')}
+}
+async function fetchVid(id){
+  const r=await fetch('https://openrouter.ai/api/v1/videos/'+id+'/content?index=0',{headers:{Authorization:'Bearer '+$('key').value.trim()}});
+  if(!r.ok)throw new Error('Ошибка '+r.status);
+  return URL.createObjectURL(await r.blob());
+}
+async function polModels(force){
+  if(S.polModels&&!force)return S.polModels;
+  try{
+    const j=await (await fetch('https://gen.pollinations.ai/video/models')).json();
+    const a=Array.isArray(j)?j:(j.data||j.models||[]);
+    S.polModels=a.map(m=>typeof m==='string'?{id:m}:{id:String(m.name||m.id||m.model||''),paid:!!(m.paid_only||m.paid)}).filter(m=>m.id);
+  }catch(e){S.polModels=S.polModels||[]}
+  return S.polModels;
+}
+async function pickPol(){
+  const ms=await polModels();let md=P.polvid||'ltx-2.3';
+  if(ms.length&&!ms.some(m=>m.id===md))md=(ms.find(m=>/ltx/i.test(m.id))||ms.find(m=>!m.paid)||ms[0]).id;
+  return md;
+}
+async function fillPol(){
+  const ms=await polModels();if(!ms.length)return;
+  $('polvid').innerHTML=ms.map(m=>`<option value="${esc(m.id)}">${esc(m.id)}${m.paid?' (платная)':''}</option>`).join('');
+  $('polvid').value=P.polvid;
+  if(!$('polvid').value)$('polvid').value=await pickPol();
+}
+function showVidSrc(){
+  const v=$('vidsrc').value,o=v==='or',pl=v==='pol';
+  if(pl)fillPol();
+  $('orbox').style.display=o?'block':'none';$('polbox').style.display=pl?'block':'none';
+  if(o)loadVidModels();
+}
+function checkGame(code){
+  return new Promise(res=>{
+    const f=document.createElement('iframe');f.sandbox='allow-scripts allow-modals';
+    f.style.cssText='position:fixed;left:0;top:0;width:640px;height:480px;border:0;opacity:.01;pointer-events:none;z-index:-1';
+    let done=false;const errs=[];
+    const fin=r=>{if(done)return;done=true;removeEventListener('message',on);clearTimeout(tm);f.remove();res(r)};
+    const on=e=>{
+      if(e.source!==f.contentWindow||!e.data)return;
+      if(e.data.mixErr)errs.push(e.data.mixErr);
+      if(e.data.mixProbe)fin(errs.length?{ok:false,why:'ошибка в коде: '+errs[0]}:e.data.mixProbe==='blank'?{ok:false,why:'чёрный или пустой экран: на нём ничего не нарисовано'}:{ok:true});
+    };
+    addEventListener('message',on);
+    const tm=setTimeout(()=>fin(errs.length?{ok:false,why:'ошибка в коде: '+errs[0]}:{ok:true}),6000);
+    f.srcdoc=gameDoc(code,true);document.body.append(f);
+  });
+}
+async function quickM(sys,ms,max){
+  const cf=cfg(),cl=cf.v==='claude';
+  const body=cl?{model:cf.model,max_tokens:max,system:sys,messages:ms}:{model:cf.model,max_tokens:max,messages:[{role:'system',content:sys},...ms]};
+  const hd=cl?{'x-api-key':cf.key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true','Content-Type':'application/json'}:{'Authorization':'Bearer '+cf.key,'Content-Type':'application/json'};
+  const j=await (await fetch(cf.pr.url,{method:'POST',headers:hd,body:JSON.stringify(body)})).json();
+  if(j.error)throw new Error(j.error.message||'ошибка');
+  return (cl?(j.content&&j.content[0]&&j.content[0].text):(j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content))||'';
+}
+async function verifyGames(full,msgs,out){
+  const re=/```html\s*\n([\s\S]*?)```/i;
+  let m=full.match(re);
+  if(!m||!/<script/i.test(m[1]))return full;
+  const flat=x=>({role:x.role,content:typeof x.content==='string'?x.content:x.content.filter(p=>p.type==='text').map(p=>p.text).join(' ')});
+  for(let n=0;n<3;n++){
+    render(out,clean(full)+'\n\n🔍 Mix проверяет, запускается ли программа…');
+    const r=await checkGame(m[1]);
+    if(r.ok)return full+'\n\n✅ Автопроверка: запускается без ошибок.';
+    if(n===2)return full+'\n\n⚠ Автопроверка нашла проблему: '+r.why+'. Нажми «🔄 Переписать» или опиши, что не так.';
+    render(out,clean(full)+'\n\n🛠 Нашёл проблему ('+r.why+'). Чиню…');
+    try{
+      const fixed=await quickM(msgs[0].content,[...msgs.slice(1).map(flat),{role:'assistant',content:full},{role:'user',content:'Автопроверка запустила твою программу и нашла проблему: '+r.why+'. Исправь и пришли ПОЛНЫЙ исправленный код одним блоком ```html. Если это стартовый экран, нарисуй на нём название и подсказку по управлению. Весь JS внутри, без внешних библиотек и сети. Коротко скажи, что починил.'}],8000);
+      const fm=fixed.match(re);
+      if(!fm)return full+'\n\n⚠ Автопроверка нашла проблему: '+r.why+', но исправить сама не смогла.';
+      full=clean(fixed);m=full.match(re);
+    }catch(e){return full+'\n\n⚠ Автопроверка нашла проблему: '+r.why+'.'}
+  }
+  return full;
+}
+const CAM={s:null,face:'environment'};
+function camStop(){if(CAM.s)CAM.s.getTracks().forEach(t=>t.stop());CAM.s=null;$('camv').srcObject=null}
+async function camOpen(){
+  if(!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia))return status('Камера в этом браузере недоступна.');
+  camStop();
+  try{CAM.s=await navigator.mediaDevices.getUserMedia({video:{facingMode:CAM.face,width:{ideal:1280}},audio:false})}
+  catch(e){return status('Нет доступа к камере: разреши её в браузере (значок слева в адресной строке).')}
+  $('camv').srcObject=CAM.s;if(!$('camd').open)$('camd').showModal();
+}
+$('camb').onclick=camOpen;
+$('camsw').onclick=()=>{CAM.face=CAM.face==='user'?'environment':'user';camOpen()};
+$('camx').onclick=()=>$('camd').close();
+$('camd').onclose=camStop;
+$('shot').onclick=()=>{
+  const v=$('camv');if(!v.videoWidth)return;
+  if(A.length>=4)return status('Можно прикрепить не больше 4 файлов.');
+  const k=Math.min(1,1024/Math.max(v.videoWidth,v.videoHeight)),c=document.createElement('canvas');
+  c.width=v.videoWidth*k;c.height=v.videoHeight*k;c.getContext('2d').drawImage(v,0,0,c.width,c.height);
+  A.push({name:'фото '+new Date().toTimeString().slice(0,5)+'.jpg',vid:false,imgs:[c.toDataURL('image/jpeg',.7)]});
+  $('camd').close();drawAtt();ensureVision();
+};
+async function genVideoPol(prompt){
+  if(!P.polkey){
+    $('text').value=prompt;
+    status('Для бесплатного видео нужен бесплатный ключ Pollinations: в настройках нажми «Получить бесплатный ключ», зарегистрируйся и вставь ключ в поле.');
+    $('gear').click();return;
+  }
+  const c=cur();S.busy=true;setVid(false);status('');
+  if(!c.msgs.length)c.title=prompt.slice(0,28);
+  c.msgs.push({role:'user',content:'🎬 '+prompt});draw();
+  const out=bubble('ai','🎬 Готовлю запрос…');$('chat').scrollTop=1e9;
+  let vid='',err='',eng=prompt;
+  try{
+    eng=await imgPrompt(prompt,true);
+    render(out,'🎬 Снимаю видео бесплатно… это может занять пару минут. Не закрывай страницу.');
+    let model=await pickPol();
+    const mk=md=>'https://gen.pollinations.ai/video/'+encodeURIComponent(eng)+'?model='+encodeURIComponent(md)+'&duration=5&aspectRatio=16:9&seed='+Math.floor(Math.random()*1e9)+'&key='+encodeURIComponent(P.polkey);
+    const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),6*60*1000);
+    let r;
+    try{
+      r=await fetch(mk(model),{signal:ctl.signal});
+      if(r.status===400&&/invalid model/i.test(await r.clone().text())){
+        const alt=(await polModels(true)).map(m=>m.id).filter(id=>id!==model).sort((a,b)=>/ltx/i.test(b)-/ltx/i.test(a))[0];
+        if(alt){model=alt;r=await fetch(mk(model),{signal:ctl.signal})}
+      }
+    }finally{clearTimeout(tm)}
+    if(r.ok&&model!==P.polvid){P.polvid=model;sv('mix_p',P)}
+    if(!r.ok){
+      let t='';
+      try{const j=await r.clone().json();t=String((j.error&&(j.error.message||j.error))||j.message||'')}catch(x){try{t=(await r.text()).slice(0,150)}catch(y){}}
+      throw new Error(r.status===400&&/invalid model/i.test(t)?('Такой модели нет у Pollinations'+(S.polModels&&S.polModels.length?'. Доступны: '+S.polModels.map(m=>m.id).join(', '):'. Выбери другую в ⚙')):r.status===401||r.status===403?'Ключ Pollinations не подошёл или у него нет доступа к этой модели. Проверь ключ в ⚙ или выбери модель ltx-2':r.status===402?'У Pollinations закончилась «пыльца» на счёте. Выбери в ⚙ «Мультик кодом», он бесплатный':r.status===429?'Слишком много запросов, подожди минуту':('Ошибка '+r.status+(t?': '+t:'')));
+    }
+    const b=await r.blob();
+    if(!/^video\//.test(b.type))throw new Error('Сервис вернул не видео. Попробуй другую модель в настройках ⚙');
+    vid=URL.createObjectURL(b);
+  }catch(e){err=e.name==='AbortError'?'Слишком долго, видео не дождались':(e instanceof TypeError?'Не удалось связаться с сервисом Pollinations (он недоступен или не принимает запросы из браузера)':(e.message||String(e)))}
+  S.busy=false;
+  if(err){status('⚠ '+err);c.msgs.pop();$('text').value=prompt}
+  else c.msgs.push({role:'assistant',content:'🎬 '+prompt,vid,vp:prompt,ep:eng});
+  save();draw();
+}
+async function genVideo(prompt){
+  if(P.vidsrc!=='or')return genVideoPol(prompt);
+  const key=$('key').value.trim();
+  if(!key)return status('Для видео нужен ключ OpenRouter сверху.');
+  status('Загружаю список видео-моделей…');await loadVidModels();status('');
+  const m=S.vidModels.find(x=>x.id===P.vidmodel)||[...S.vidModels].sort((a,b)=>(vprice(a)||99)-(vprice(b)||99))[0];
+  if(!m)return status('Видео-модели сейчас недоступны.');
+  const d=m.supported_durations||[],sec=d.includes(P.vidsec)?P.vidsec:(d.length?Math.min(...d):0),est=vprice(m)*(sec||5);
+  if(!confirm('Видео платное. Модель: '+(m.name||m.id)+(sec?', '+sec+' сек':'')+', без звука.\n'+(est?'Примерно от $'+est.toFixed(2)+' с твоего баланса OpenRouter.':'Цену определить не удалось.')+'\nНачать?')){setVid(false);$('text').value=prompt;return}
+  const c=cur();S.busy=true;setVid(false);
+  if(!c.msgs.length)c.title=prompt.slice(0,28);
+  c.msgs.push({role:'user',content:'🎬 '+prompt});draw();
+  const out=bubble('ai','🎬 Готовлю запрос…');$('chat').scrollTop=1e9;
+  let id='',err='',cost=0,vid='',eng=prompt;
+  try{
+    eng=await imgPrompt(prompt,true);
+    const body={model:m.id,prompt:eng,generate_audio:false},rs=m.supported_resolutions||[],ar=m.supported_aspect_ratios||[];
+    const rk=x=>/K$/i.test(x)?parseInt(x)*1000:parseInt(x)||0;
+    if(sec)body.duration=sec;
+    if(rs.length)body.resolution=[...rs].sort((a,b)=>rk(a)-rk(b))[0];
+    if(ar.length)body.aspect_ratio=ar.includes('16:9')?'16:9':ar[0];
+    let r=await fetch('https://openrouter.ai/api/v1/videos',{method:'POST',headers:{'Authorization':'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify(body)});
+    let j=await r.json();
+    if(!r.ok||(j.error&&!j.id))throw new Error((j.error&&(j.error.message||j.error))||('Ошибка '+r.status));
+    id=j.id;const t0=Date.now();
+    while(j.status!=='completed'){
+      if(['failed','cancelled','expired'].includes(j.status))throw new Error(j.error||('Видео не получилось ('+j.status+')'));
+      if(Date.now()-t0>15*60*1000)throw new Error('Слишком долго, видео не дождались');
+      render(out,'🎬 Снимаю видео… прошло '+Math.round((Date.now()-t0)/1000)+' сек. Не закрывай страницу.');
+      await new Promise(ok=>setTimeout(ok,10000));
+      r=await fetch(j.polling_url||('https://openrouter.ai/api/v1/videos/'+id),{headers:{Authorization:'Bearer '+key}});
+      j=await r.json();
+      if(!r.ok)throw new Error((j.error&&(j.error.message||j.error))||('Ошибка '+r.status));
+    }
+    cost=(j.usage&&j.usage.cost)||0;
+    vid=await fetchVid(id);
+  }catch(e){err=e.message||String(e)}
+  S.busy=false;
+  if(err){status('⚠ '+err);c.msgs.pop();$('text').value=prompt}
+  else c.msgs.push({role:'assistant',content:'🎬 '+prompt+(cost?'\nСтоимость: $'+cost:''),vid,vp:prompt,vj:id,ep:eng});
+  save();draw();
+}
+async function genImage(prompt,prev){
+  const c=cur();S.busy=true;setImg(false);status('');
+  if(!prev){if(!c.msgs.length)c.title=prompt.slice(0,28);c.msgs.push({role:'user',content:'🎨 '+prompt})}
+  draw();bubble('ai','🎨 Рисую… это может занять до минуты');$('chat').scrollTop=1e9;
+  let img='',err='',eng=prompt;
+  try{
+    eng=(prev&&prev.ep)||await imgPrompt(prompt);
+    if(P.imgsrc==='or'){
+      const key=$('key').value.trim(),mid=P.imgmodel;
+      if(!key)throw new Error('Вставь ключ OpenRouter сверху');
+      if(!mid)throw new Error('Выбери модель для картинок в настройках ⚙');
+      const mod=S.imgModels.find(x=>x.id===mid);
+      const r=await fetch(PROV.openrouter.url,{method:'POST',headers:{'Authorization':'Bearer '+key,'Content-Type':'application/json','X-Title':'Mix'},body:JSON.stringify({model:mid,messages:[{role:'user',content:eng}],modalities:mod&&!mod.text?['image']:['image','text'],stream:false})});
+      const j=await r.json();
+      if(j.error)throw new Error(j.error.message||('Ошибка '+r.status));
+      const ims=(((j.choices||[])[0]||{}).message||{}).images;
+      img=ims&&ims[0]&&ims[0].image_url&&ims[0].image_url.url;
+      if(!img)throw new Error('Модель не вернула картинку');
+    }else{
+      const u='https://image.pollinations.ai/prompt/'+encodeURIComponent(eng)+'?model=flux&width=1024&height=1024&nologo=true&seed='+Math.floor(Math.random()*1e9);
+      await new Promise((ok,no)=>{
+        const i=new Image(),t=setTimeout(()=>no(new Error('Слишком долго ждали')),90000);
+        i.onload=()=>{clearTimeout(t);ok()};
+        i.onerror=()=>{clearTimeout(t);no(new Error('Сервис Pollinations сейчас не отвечает'))};
+        i.src=u;
+      });
+      img=u;
+    }
+  }catch(e){err=e.message}
+  S.busy=false;
+  if(err){
+    status('⚠ '+err+'. Источник картинок можно сменить в настройках ⚙.');
+    if(prev)c.msgs.push(prev);else{c.msgs.pop();$('text').value=prompt}
+  }else c.msgs.push({role:'assistant',content:'🎨 '+prompt,img,ip:prompt,ep:eng});
+  save();draw();
+  if(S.live)listen();
+}
+$('imgb').onclick=()=>{setVid(false);setImg(!S.imgMode);$('text').focus()};
+$('vidb').onclick=()=>{setImg(false);setVid(!S.vidMode);$('text').focus()};
+$('vidmodel').onchange=fillSec;
+$('vidsrc').onchange=showVidSrc;
+$('imgsrc').onchange=showImgModel;
+uiProv();
+function applyDev(){
+  const m=P.dev||'auto',ph=m==='phone'||(m==='auto'&&(innerWidth<=760||(matchMedia('(pointer:coarse)').matches&&innerWidth<=1024)));
+  document.body.classList.toggle('phone',ph);
+  if(ph&&!$('key').value.trim())$('tools').classList.add('open');
+  uiAdmin();
+}
+$('dev').onchange=()=>{P.dev=$('dev').value;sv('mix_p',P);applyDev()};
+$('more').onclick=()=>$('tools').classList.toggle('open');
+addEventListener('resize',applyDev);
+$('bkp').onclick=()=>{
+  const p={...P};delete p.key;delete p.keys;delete p.polkey;delete p.admin;
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({v:2,p,chats:D})],{type:'application/json'}));
+  a.download='mix-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+  P.lastBkp=Date.now();sv('mix_p',P);
+};
+$('rst').onclick=()=>$('rstf').click();
+$('rstf').onchange=async e=>{
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  try{
+    const j=JSON.parse(await f.text());if(!j.chats||!j.p)throw 0;
+    if(!confirm('Заменить текущие чаты и настройки данными из копии?'))return;
+    const keep={key:P.key,keys:P.keys,polkey:P.polkey,admin:P.admin};
+    Object.assign(P,j.p,keep);D=j.chats;sv('mix_p',P);save();location.reload();
+  }catch(x){status('Не получилось прочитать файл копии.')}
+};
+$('name').oninput=()=>{$('pbx').style.display=nameIsMax($('name').value)?'block':'none'};
+if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
+if(D.list.some(c=>c.msgs.length)&&Date.now()-(P.lastBkp||0)>7*864e5&&$('status').textContent==='')status('💾 Давно не было копии. В настройках ⚙ есть кнопка «Сохранить копию» (на компьютер).');
+if(!(navigator.mediaDevices&&navigator.mediaDevices.getDisplayMedia))$('share').style.display='none';
+applyDev();
+$('av').src=AV;$('q').oninput=draw;uiAdmin();
+speechSynthesis.onvoiceschanged=loadVoices;
+if(!D.list.length)newChat();else{if(!cur())D.cur=D.list[0].id;draw()}
+loadModels();loadVoices();
+</script>
+</body>
+</html>

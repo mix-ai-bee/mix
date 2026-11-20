@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Mix — скачать</title>
+<meta name="description" content="Mix — бесплатный ИИ-напарник: чат, Миксимал, Mix Код, голос, картинки, монтаж роликов. Скачай для Windows, поставь на телефон или открой в браузере.">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#ffffff">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/favicon-32.png">
+<style>
+:root{--bg:#f4f5f8;--card:#fff;--side:#f8f9fc;--black:#111827;--text:#1f2937;--mut:#6b7280;--line:#e2e8f0;--green:#10b981;--gold:#f59e0b;--sh:0 2px 8px rgba(0,0,0,.04);--sh2:0 4px 20px rgba(0,0,0,.06)}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+.logo{display:inline-block;width:34px;height:34px;flex:none;background:center/contain no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpolygon points='50,15 15,85 85,85' fill='none' stroke='%23111827' stroke-width='6'/%3E%3Ctext x='50' y='68' font-size='28' font-weight='bold' font-family='Arial' fill='%23111827' text-anchor='middle'%3EM%3C/text%3E%3Cpolygon points='20,50 5,75 20,75' fill='none' stroke='%23111827' stroke-width='5'/%3E%3Cpolygon points='80,50 95,75 80,75' fill='none' stroke='%23111827' stroke-width='5'/%3E%3C/svg%3E")}
+.logo.w{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpolygon points='50,15 15,85 85,85' fill='none' stroke='%23ffffff' stroke-width='4'/%3E%3Ctext x='50' y='68' font-size='28' font-weight='bold' font-family='Arial' fill='%23ffffff' text-anchor='middle'%3EM%3C/text%3E%3Cpolygon points='20,50 5,75 20,75' fill='none' stroke='%23ffffff' stroke-width='3'/%3E%3Cpolygon points='80,50 95,75 80,75' fill='none' stroke='%23ffffff' stroke-width='3'/%3E%3C/svg%3E")}
+/* шапка */
+.top{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.88);-webkit-backdrop-filter:saturate(1.8) blur(16px);backdrop-filter:saturate(1.8) blur(16px);border-bottom:1px solid var(--line)}
+.top .in{max-width:1080px;margin:0 auto;height:60px;padding:0 20px;display:flex;align-items:center;gap:12px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.brand b{font-size:18px;color:var(--black)}
+.badge{background:#dcfce7;color:#166534;font-size:10px;padding:2px 7px;border-radius:12px;font-weight:700}
+.top nav{margin-left:auto;display:flex;gap:4px}
+.top nav a{text-decoration:none;font-size:13.5px;font-weight:600;color:#374151;padding:6px 10px;border-radius:8px}
+.top nav a:hover{background:#f3f4f6}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;font-weight:600;font-size:14.5px;padding:12px 18px;border-radius:12px;border:1px solid var(--line);background:#fff;color:var(--text);cursor:pointer;transition:transform .1s,background .2s,box-shadow .2s;font-family:inherit}
+.btn:hover{box-shadow:var(--sh2);transform:translateY(-1px)}
+.btn:active{transform:scale(.98)}
+.btn.dark{background:var(--black);color:#fff;border-color:var(--black)}
+.btn.dark:hover{background:#1f2937}
+.btn small{font-weight:500;opacity:.7;font-size:12px}
+.btn.sm{padding:7px 12px;font-size:13px;border-radius:9px}
+/* главный блок */
+.hero{max-width:1080px;margin:0 auto;padding:64px 20px 40px;text-align:center}
+.hero .logo{width:84px;height:84px;margin-bottom:18px}
+.hero h1{font-size:clamp(30px,5vw,48px);line-height:1.1;letter-spacing:-1px;color:var(--black)}
+.hero p.lead{font-size:clamp(15px,2vw,18px);color:var(--mut);max-width:620px;margin:16px auto 28px}
+.hero .cta{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.hero .ver{margin-top:16px;font-size:13px;color:var(--mut)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:34px}
+.chips span{background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;box-shadow:var(--sh)}
+/* секции */
+section{max-width:1080px;margin:0 auto;padding:30px 20px}
+h2{font-size:26px;letter-spacing:-.5px;color:var(--black);margin-bottom:6px}
+.sub{color:var(--mut);margin-bottom:20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:var(--sh);display:flex;flex-direction:column;gap:10px}
+.card .ic{font-size:30px;line-height:1}
+.card h3{font-size:17px;color:var(--black)}
+.card p{color:var(--mut);font-size:14px}
+.card ol{padding-left:18px;color:#374151;font-size:14px;display:flex;flex-direction:column;gap:4px}
+.card .bt{margin-top:auto;display:flex;flex-direction:column;gap:8px}
+.card.rec{border-color:var(--black);box-shadow:0 0 0 1px var(--black),var(--sh2)}
+.tag{display:inline-block;font-size:11px;font-weight:700;border-radius:6px;padding:1px 7px;background:#f3f4f6;color:#374151;margin-left:6px;vertical-align:2px}
+.tag.g{background:#dcfce7;color:#166534}.tag.y{background:#fef3c7;color:#92400e}
+.note{background:#fffbeb;border:1px solid #fde68a;color:#78350f;border-radius:12px;padding:12px 14px;font-size:13.5px}
+.note b{color:#78350f}
+/* все версии */
+.vtools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.vtools input{flex:1;min-width:200px;padding:11px 14px;border-radius:12px;border:1px solid var(--line);font:inherit;background:#fff}
+.vtools button{padding:9px 14px;border-radius:10px;border:1px solid var(--line);background:#fff;font:600 13px inherit;cursor:pointer;font-family:inherit}
+.vtools button.on{background:var(--black);color:#fff;border-color:var(--black)}
+.vlist{display:flex;flex-direction:column;gap:8px}
+.v{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:grid;grid-template-columns:86px 1fr auto;gap:14px;align-items:center;box-shadow:var(--sh)}
+.v .num{font-weight:800;font-size:17px;color:var(--black)}
+.v .num small{display:block;font-size:11px;font-weight:600;color:var(--mut)}
+.v h4{font-size:15px;color:var(--black)}
+.v ul{list-style:none;color:var(--mut);font-size:13px;margin-top:2px}
+.v ul li::before{content:"· "}
+.v .act{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.v.lost{opacity:.62;background:#fafafa}
+.v.now{border-color:var(--black);box-shadow:0 0 0 1px var(--black),var(--sh2)}
+.v.big .num{color:#b45309}
+footer{text-align:center;color:var(--mut);font-size:13px;padding:40px 20px calc(40px + env(safe-area-inset-bottom))}
+@media(max-width:640px){
+  .top nav a:not(.keep){display:none}
+  .hero{padding-top:40px}
+  .v{grid-template-columns:62px 1fr;row-gap:8px}.v .act{grid-column:1/-1;justify-content:flex-start}
+  .btn{width:100%}.hero .cta .btn{width:100%}
+}
+#toast{opacity:0;visibility:hidden;transition:transform .3s,opacity .3s,visibility .3s!important}
+#toast.on{opacity:1;visibility:visible}
+#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(140%);background:var(--black);color:#fff;padding:10px 16px;border-radius:12px;font-size:14px;transition:transform .3s;z-index:20;max-width:calc(100% - 32px)}
+#toast.on{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="top"><div class="in">
+  <a class="brand" href="#"><i class="logo"></i><b>Mix</b><span class="badge">Ultimate AI</span></a>
+  <nav><a href="#get">Скачать</a><a href="#versions">Все версии</a><a class="keep" href="mix.html">Открыть Mix</a></nav>
+</div></div>
+
+<div class="hero">
+  <i class="logo"></i>
+  <h1>Mix — твой ИИ-напарник</h1>
+  <p class="lead">Чат с нейросетями, самый умный режим Миксимал, программист Mix Код, голос, картинки и монтаж роликов. Бесплатно. Работает на компьютере, на Android и на iPhone.</p>
+  <div class="cta">
+    <a class="btn dark" id="mainBtn" href="#get">⬇ Скачать Mix</a>
+    <a class="btn" href="mix.html">▶ Открыть в браузере</a>
+  </div>
+  <div class="ver">Сейчас: <b id="curVer">Mix</b> · создатель — Максим Ластовенко</div>
+  <div class="chips"><span>🧠 Миксимал</span><span>💻 Mix Код с твоими файлами</span><span>🎙 Голос Live</span><span>🎧 Слышит аудио</span><span>✂️ Монтаж роликов</span><span>🎨 Картинки</span><span>🖥 Видит экран</span></div>
+</div>
+
+<section id="get">
+  <h2>Скачать</h2>
+  <p class="sub">Выбери, где тебе удобнее. Везде один и тот же Mix, а твои чаты хранятся только у тебя.</p>
+  <div class="grid">
+    <div class="card" id="cWin">
+      <div class="ic">🪟</div>
+      <h3>Windows <span class="tag g">всё включено</span></h3>
+      <p>Настоящая программа: управляет компьютером, видит экран, маленький Mix-маскот, голоса Microsoft. Python не нужен.</p>
+      <ol><li>Скачай Mix.exe.</li><li>Открой его — Mix сам предложит установиться: ярлык на рабочем столе и в «Пуске».</li><li>Удалить можно в «Параметры → Приложения».</li></ol>
+      <div class="bt"><a class="btn dark" href="downloads/Mix.exe" download>⬇ Скачать Mix.exe <small id="exeSize">Windows 10/11</small></a></div>
+      <div class="note"><b>Windows может предупредить.</b> У Mix пока нет платной цифровой подписи, поэтому появится «Windows защитила ваш компьютер» — нажми «Подробнее» → «Выполнить в любом случае». Если включён Smart App Control, Windows не даст запустить файл — тогда поставь Mix через браузер (карточка ниже).</div>
+    </div>
+    <div class="card" id="cApk">
+      <div class="ic">🤖</div>
+      <h3>Android <span class="tag g">APK</span></h3>
+      <p>Обычное приложение для телефона: голос, Live, камера, диктовка, файлы, монтаж роликов. Работает и без интернета (кроме самих ответов ИИ).</p>
+      <ol><li>Скачай Mix.apk.</li><li>Открой файл. Телефон спросит, можно ли ставить приложения из браузера, — разреши.</li><li>Нажми «Установить».</li></ol>
+      <div class="bt"><a class="btn dark" href="downloads/Mix.apk" download>⬇ Скачать Mix.apk <small id="apkSize">Android 7+</small></a></div>
+      <div class="note"><b>Это безопасно.</b> Предупреждение «приложение из неизвестного источника» появляется у всех приложений не из Google Play. Mix не просит ничего лишнего: только микрофон и камеру, когда ты сам ими пользуешься.</div>
+    </div>
+    <div class="card" id="cPc">
+      <div class="ic">💻</div>
+      <h3>Через браузер <span class="tag">без файлов</span></h3>
+      <p>Mix ставится из Chrome или Edge как приложение: своя иконка, своё окно, без адресной строки. Подходит для Mac, Linux, Chromebook, а также для Windows и Android, если файлы ставить не хочется.</p>
+      <ol><li>Нажми кнопку ниже.</li><li>Подтверди «Установить».</li></ol>
+      <div class="bt"><button class="btn dark inst" type="button">📲 Установить Mix</button></div>
+    </div>
+    <div class="card" id="cIos">
+      <div class="ic">🍏</div>
+      <h3>iPhone и iPad</h3>
+      <p>Своя иконка на экране, Mix открывается на весь экран, как приложение. Ставится за 10 секунд прямо из Safari.</p>
+      <ol><li>Открой этот сайт в <b>Safari</b>.</li><li>Нажми «Поделиться» <b>⬆︎</b> внизу экрана.</li><li>Выбери «На экран Домой» → «Добавить».</li></ol>
+      <div class="bt"><a class="btn dark" href="mix.html">▶ Открыть Mix в Safari</a></div>
+      <div class="note"><b>Почему не файлом?</b> Apple разрешает ставить приложения файлом только через App Store, а это 99 $ в год. Поэтому на iPhone Mix ставится с сайта — получается то же самое приложение со своей иконкой.</div>
+    </div>
+  </div>
+  <p class="sub" style="margin-top:14px;font-size:13.5px">На телефонах и в браузере нет того, что связано с управлением компьютером (мышь, маскот, голоса Microsoft). Всё остальное — как в программе. Чаты везде хранятся только на твоём устройстве.</p>
+</section>
+
+<section id="versions">
+  <h2>Все версии Mix</h2>
+  <p class="sub">Вся история Mix с 1.0. Любую сохранившуюся версию можно открыть или скачать. Серые — lost media: их файлы потеряны.</p>
+  <div class="vtools">
+    <input id="vq" type="search" placeholder="🔍 Найти версию или функцию: «2.6», «Миксимал», «монтаж»…">
+    <button type="button" data-f="all" class="on">Все</button><button type="button" data-f="file">Только скачиваемые</button><button type="button" data-f="big">Ярусные</button>
+  </div>
+  <div class="vlist" id="vlist"><p class="sub">Загружаю список версий…</p></div>
+</section>
+
+<footer><i class="logo" style="width:26px;height:26px;vertical-align:-7px;margin-right:6px"></i>Mix — бесплатный проект Максима Ластовенко. Ключи от нейросетей вводишь ты сам; создатель Mix ничего не оплачивает и твои данные не собирает.</footer>
+<div id="toast"></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const toast=t=>{const e=$('toast');e.textContent=t;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('on'),4200)};
+const BIG=['1.0','1.5','2.0','2.5','3.0'];  // «ярусные» версии
+/* ---------- платформа посетителя: главная кнопка ведёт к нужной карточке ---------- */
+const ua=navigator.userAgent,IOS=/iphone|ipad|ipod/i.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),AND=/android/i.test(ua),WIN=/windows/i.test(ua);
+const mb=$('mainBtn');
+if(IOS){mb.textContent='📲 Поставить на iPhone';mb.href='#cIos';$('cIos').classList.add('rec')}
+else if(AND){mb.textContent='⬇ Скачать для Android';mb.href='downloads/Mix.apk';mb.setAttribute('download','');$('cApk').classList.add('rec')}
+else if(WIN){mb.textContent='⬇ Скачать для Windows';mb.href='downloads/Mix.exe';mb.setAttribute('download','');$('cWin').classList.add('rec')}
+else{mb.textContent='📲 Установить Mix';mb.href='#cPc';$('cPc').classList.add('rec')}
+/* ---------- установка как приложение ---------- */
+let inst=null;
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();inst=e});
+document.querySelectorAll('.inst').forEach(b=>b.onclick=async()=>{
+  if(inst){inst.prompt();try{const r=await inst.userChoice;if(r.outcome==='accepted')toast('📲 Mix установлен! Ищи его иконку на экране.')}catch(e){}inst=null;return}
+  if(IOS)return toast('На iPhone: «Поделиться» → «На экран Домой» → «Добавить».');
+  if(matchMedia('(display-mode: standalone)').matches)return toast('Mix уже установлен 👍');
+  toast('Открой меню браузера (⋮) и выбери «Установить Mix» или «Добавить на главный экран».');
+});
+if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+/* ---------- размер Mix.exe ---------- */
+/* ---------- где лежат Mix.exe и Mix.apk ----------
+   На GitHub Pages (адрес вида имя.github.io/репозиторий) большие файлы берём из GitHub Releases этого же репозитория:
+   ссылка .../releases/latest/download/Mix.exe всегда ведёт на самую свежую версию. Иначе — из папки downloads рядом. */
+const GH=location.hostname.endsWith('.github.io')?{user:location.hostname.split('.')[0],repo:(location.pathname.split('/')[1]||location.hostname)}:null;
+const fileUrl=n=>GH?'https://github.com/'+GH.user+'/'+GH.repo+'/releases/latest/download/'+n:'downloads/'+n;
+document.querySelectorAll('a[href="downloads/Mix.exe"],a[href="downloads/Mix.apk"]').forEach(a=>{a.href=fileUrl(a.getAttribute('href').split('/').pop())});
+if(GH){$('exeSize').textContent='Windows 10/11';$('apkSize').textContent='Android 7+'}
+else [['downloads/Mix.exe','exeSize',' · Windows 10/11'],['downloads/Mix.apk','apkSize',' · Android 7+']].forEach(([u,id,tail])=>
+  fetch(u,{method:'HEAD'}).then(r=>{const n=+r.headers.get('content-length');if(r.ok&&n)$(id).textContent=(n/1048576).toFixed(n<1e7?1:0).replace('.',',')+' МБ'+tail;else if(!r.ok)$(id).textContent='скоро'}).catch(()=>{}));
+/* ---------- все версии: список берётся прямо из mix.html (раздел «История Mix»), поэтому всегда свежий ---------- */
+let H=[],filt='all';
+async function loadVersions(){
+  try{
+    const t=await (await fetch('mix.html',{cache:'no-store'})).text();
+    const ver=(t.match(/const VER='([^']+)'/)||[])[1]||'';
+    const a=t.indexOf('const HIST=['),b=t.indexOf('\n];',a);if(a<0||b<0)throw 0;
+    H=new Function('VB','HM','VER','return '+t.slice(a+11,b+2))('versions/','versions/media/',ver);
+    $('curVer').textContent='Mix '+ver;
+    draw();
+  }catch(e){$('vlist').innerHTML='<p class="sub">Не получилось загрузить список версий. Открой страницу через сайт, а не файлом.</p>'}
+}
+function draw(){
+  const q=$('vq').value.trim().toLowerCase(),L=$('vlist');L.innerHTML='';
+  const rows=[...H].reverse().filter(([v,t,items,imgs,file])=>{
+    if(filt==='file'&&!(file&&file!=='now'))return false;
+    if(filt==='big'&&!BIG.includes(v))return false;
+    return !q||(v+' '+t+' '+items.join(' ')).toLowerCase().includes(q);
+  });
+  if(!rows.length){L.innerHTML='<p class="sub">Ничего не нашлось.</p>';return}
+  rows.forEach(([v,t,items,imgs,file])=>{
+    const now=file==='now',has=file&&!now,lost=!now&&!has,d=document.createElement('div');
+    d.className='v'+(lost?' lost':'')+(now?' now':'')+(BIG.includes(v)?' big':'');
+    const name='mix-'+v+'.html';
+    d.innerHTML='<div class="num">'+esc(v)+'<small>'+(now?'сейчас':BIG.includes(v)?'ярусная':lost?(imgs&&imgs.length?'скриншоты':'lost media'):'')+'</small></div>'
+      +'<div><h4>'+esc(t)+'</h4><ul>'+items.slice(0,3).map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></div>'
+      +'<div class="act">'+(now?'<a class="btn sm dark" href="mix.html">▶ Открыть</a><a class="btn sm" href="mix.html" download="mix-'+esc(v)+'.html">⬇ Скачать</a>'
+        :has?'<a class="btn sm" href="'+esc(file)+'" target="_blank" rel="noopener">▶ Открыть</a><a class="btn sm" href="'+esc(file)+'" download="'+esc(name)+'">⬇ Скачать</a>'
+        :'<span class="tag y">файл потерян</span>')+'</div>';
+    L.append(d);
+  });
+}
+$('vq').oninput=draw;
+document.querySelectorAll('.vtools button').forEach(b=>b.onclick=()=>{filt=b.dataset.f;document.querySelectorAll('.vtools button').forEach(x=>x.classList.toggle('on',x===b));draw()});
+loadVersions();
+</script>
+</body>
+</html>

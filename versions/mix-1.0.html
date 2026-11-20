@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mix</title>
+<style>
+:root{--bg:#15121f;--panel:#1f1a2e;--line:#332b4a;--text:#f1ecff;--mut:#9a90b8;--pink:#ff4f8b;--mint:#35e0b0}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;display:flex;flex-direction:column}
+header{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line)}
+.logo{font-weight:900;font-size:28px;letter-spacing:-1px;margin-right:8px}
+.logo b{color:var(--pink)}
+input,select,textarea,button{font:inherit;color:var(--text)}
+input,select,textarea{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+:focus-visible{outline:2px solid var(--mint);outline-offset:2px}
+#key{width:200px}
+#model{flex:1;min-width:200px;max-width:400px}
+.chk{color:var(--mut);font-size:14px;display:flex;gap:6px;align-items:center}
+button{border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:9px 14px;cursor:pointer}
+button:hover{border-color:var(--pink)}
+button.on{background:var(--mint);color:#08231b;border-color:var(--mint)}
+#live{background:var(--pink);border-color:var(--pink);color:#fff;font-weight:700;border-radius:999px;padding:10px 18px}
+#live.on{animation:pulse 1.3s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 10px #ff4f8b44}}
+@media (prefers-reduced-motion:reduce){#live.on{animation:none}}
+#chat{flex:1;overflow:auto;padding:18px 16px;display:flex;flex-direction:column;gap:12px}
+.msg{max-width:min(760px,92%);padding:10px 14px;border-radius:14px;white-space:pre-wrap;word-break:break-word}
+.me{align-self:flex-end;background:var(--pink);color:#fff}
+.ai{align-self:flex-start;background:var(--panel);border:1px solid var(--line)}
+.sys{align-self:center;color:var(--mut);font-size:14px;text-align:center}
+.msg img{max-width:100%;border-radius:8px;display:block;margin-bottom:6px}
+pre{background:#0d0a16;border-radius:8px;padding:10px;overflow:auto;margin:6px 0;white-space:pre;font-size:14px}
+#status{color:var(--mut);font-size:13px;padding:4px 16px;min-height:26px}
+footer{padding:0 16px 14px;display:flex;gap:8px;align-items:flex-end}
+#text{flex:1;resize:none;max-height:140px}
+#screen{position:fixed;right:14px;bottom:100px;width:230px;border-radius:10px;border:2px solid var(--mint);display:none;background:#000}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Mi<b>x</b></div>
+  <input id="key" type="password" placeholder="API-ключ OpenRouter" autocomplete="off">
+  <select id="model" aria-label="Модель"></select>
+  <label class="chk"><input id="free" type="checkbox" checked> только бесплатные</label>
+  <button id="share">🖥 Экран</button>
+  <button id="live">🎙 Live</button>
+</header>
+<div id="chat"></div>
+<div id="status"></div>
+<footer>
+  <textarea id="text" rows="1" placeholder="Напиши Mix…  (Enter — отправить)"></textarea>
+  <button id="send">Отправить</button>
+</footer>
+<video id="screen" autoplay muted playsinline></video>
+
+<script>
+const $=id=>document.getElementById(id);
+const S={models:[],history:[],stream:null,live:false,rec:null,busy:false,speaking:false};
+const store=(k,v)=>{try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}};
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const SYS='Тебя зовут Mix. Ты дружелюбный ИИ-собеседник. Отвечай на языке пользователя, по умолчанию по-русски. Если приложен снимок экрана, это то, что пользователь сейчас показывает: обсуждай его.';
+const status=t=>$('status').textContent=t;
+
+function render(el,t){
+  el.textContent='';
+  t.split('```').forEach((p,i)=>{
+    if(i%2){const pre=document.createElement('pre');pre.textContent=p.replace(/^\w*\n/,'');el.appendChild(pre)}
+    else el.appendChild(document.createTextNode(p));
+  });
+}
+function add(cls,text,img){
+  const d=document.createElement('div');d.className='msg '+cls;
+  if(img){const i=new Image();i.src=img;d.appendChild(i)}
+  const s=document.createElement('div');d.appendChild(s);render(s,text);
+  $('chat').appendChild(d);$('chat').scrollTop=1e9;return s;
+}
+
+/* ---------- модели ---------- */
+async function loadModels(){
+  try{
+    const j=await (await fetch('https://openrouter.ai/api/v1/models')).json();
+    S.models=j.data.map(m=>({id:m.id,name:m.name,
+      free:+m.pricing.prompt===0&&+m.pricing.completion===0,
+      vision:(m.architecture&&m.architecture.input_modalities||[]).includes('image')}));
+    fill();
+  }catch(e){status('Не удалось загрузить список моделей: '+e.message)}
+}
+function fill(){
+  const only=$('free').checked,cur=store('mix_model');
+  const list=S.models.filter(m=>!only||m.free).sort((a,b)=>a.name.localeCompare(b.name));
+  $('model').innerHTML=list.map(m=>`<option value="${esc(m.id)}">${m.vision?'👁 ':''}${esc(m.name)}${m.free?' (бесплатно)':''}</option>`).join('');
+  if(list.some(m=>m.id===cur))$('model').value=cur;
+}
+
+/* ---------- отправка ---------- */
+function frame(){
+  const v=$('screen');
+  if(!S.stream||!v.videoWidth)return null;
+  const k=Math.min(1,1280/v.videoWidth),c=document.createElement('canvas');
+  c.width=v.videoWidth*k;c.height=v.videoHeight*k;
+  c.getContext('2d').drawImage(v,0,0,c.width,c.height);
+  return c.toDataURL('image/jpeg',.7);
+}
+function fail(msg){status(msg);if(S.live)setLive(false)}
+
+async function send(text){
+  text=text.trim();
+  if(!text||S.busy)return;
+  const key=$('key').value.trim(),model=$('model').value;
+  if(!key)return fail('Вставь API-ключ OpenRouter сверху.');
+  if(!model)return fail('Выбери модель.');
+  S.busy=true;status('');
+  const img=frame();
+  add('me',text,img);
+  const content=img?[{type:'text',text},{type:'image_url',image_url:{url:img}}]:text;
+  const msgs=[
+    {role:'system',content:SYS+(S.live?' Сейчас голосовой режим: отвечай коротко (1–3 предложения), без markdown и списков.':'')},
+    ...S.history,{role:'user',content}
+  ];
+  const out=add('ai','…');let full='';
+  try{
+    const r=await fetch('https://openrouter.ai/api/v1/chat/completions',{
+      method:'POST',
+      headers:{'Authorization':'Bearer '+key,'Content-Type':'application/json','X-Title':'Mix'},
+      body:JSON.stringify({model,messages:msgs,stream:true})
+    });
+    if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error((e.error&&e.error.message)||('Ошибка '+r.status))}
+    const rd=r.body.getReader(),dec=new TextDecoder();let buf='';
+    for(;;){
+      const {done,value}=await rd.read();if(done)break;
+      buf+=dec.decode(value,{stream:true});
+      const lines=buf.split('\n');buf=lines.pop();
+      for(const l of lines){
+        if(!l.startsWith('data: ')||l.includes('[DONE]'))continue;
+        let d;try{d=JSON.parse(l.slice(6))}catch(e){continue}
+        if(d.error)throw new Error(d.error.message||'Ошибка модели');
+        const t=d.choices&&d.choices[0]&&d.choices[0].delta&&d.choices[0].delta.content;
+        if(t){full+=t;render(out,full);$('chat').scrollTop=1e9}
+      }
+    }
+    if(!full)throw new Error('Пустой ответ. Попробуй другую модель.');
+    S.history.push({role:'user',content:text},{role:'assistant',content:full});
+  }catch(e){
+    out.parentNode.className='msg sys';
+    out.textContent='⚠ '+e.message+' — у бесплатных моделей бывают лимиты, попробуй другую.';
+    full='';
+  }
+  S.busy=false;
+  if(S.live){full?speak(full):listen()}
+}
+
+/* ---------- Live: голос ---------- */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+function speak(t){
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(t.replace(/```[\s\S]*?```/g,' ').replace(/[*#_`]/g,''));
+  u.lang='ru-RU';
+  const v=speechSynthesis.getVoices().find(v=>v.lang.startsWith('ru'));if(v)u.voice=v;
+  u.onend=u.onerror=()=>{S.speaking=false;listen()};
+  S.speaking=true;status('🔊 Mix говорит…');speechSynthesis.speak(u);
+}
+function listen(){
+  if(!S.live||S.busy||S.speaking)return;
+  try{S.rec.start();status('🎙 Слушаю… говори')}catch(e){}
+}
+function setLive(on){
+  if(on&&!SR)return status('Голосовой режим работает в Chrome или Edge.');
+  S.live=on;
+  $('live').classList.toggle('on',on);
+  $('live').textContent=on?'■ Стоп':'🎙 Live';
+  if(on){
+    S.rec=new SR();S.rec.lang='ru-RU';S.rec.interimResults=true;
+    let fin='';
+    S.rec.onresult=e=>{fin=[...e.results].map(r=>r[0].transcript).join('');$('text').value=fin};
+    S.rec.onend=()=>{const t=fin.trim();fin='';$('text').value='';if(!S.live)return;t?send(t):setTimeout(listen,300)};
+    S.rec.onerror=e=>{if(e.error==='not-allowed'||e.error==='service-not-allowed'){setLive(false);status('Нет доступа к микрофону — разреши его в браузере.')}};
+    listen();
+  }else{
+    try{S.rec.abort()}catch(e){}
+    speechSynthesis.cancel();S.speaking=false;status('');
+  }
+}
+
+/* ---------- показ экрана ---------- */
+function stopScreen(){
+  if(S.stream)S.stream.getTracks().forEach(t=>t.stop());
+  S.stream=null;$('screen').srcObject=null;$('screen').style.display='none';
+  $('share').classList.remove('on');$('share').textContent='🖥 Экран';
+}
+async function toggleScreen(){
+  if(S.stream)return stopScreen();
+  try{
+    S.stream=await navigator.mediaDevices.getDisplayMedia({video:true});
+  }catch(e){return status('Показ экрана не включён.')}
+  const v=$('screen');v.srcObject=S.stream;v.style.display='block';
+  $('share').classList.add('on');$('share').textContent='■ Стоп экран';
+  S.stream.getVideoTracks()[0].onended=stopScreen;
+  const m=S.models.find(m=>m.id===$('model').value);
+  if(m&&m.vision)return status('Mix видит твой экран: он смотрит на него при каждом сообщении.');
+  const o=[...$('model').options].find(o=>o.text.startsWith('👁'));
+  if(o){$('model').value=o.value;store('mix_model',o.value);status('Переключил на модель, которая видит картинки: '+o.text)}
+  else status('В списке нет моделей с «глазом» 👁 — сними галочку «только бесплатные».');
+}
+
+/* ---------- запуск ---------- */
+$('key').value=store('mix_key')||'';
+$('key').onchange=()=>store('mix_key',$('key').value.trim());
+$('model').onchange=()=>store('mix_model',$('model').value);
+$('free').onchange=fill;
+$('share').onclick=toggleScreen;
+$('live').onclick=()=>setLive(!S.live);
+$('send').onclick=()=>{const t=$('text').value;$('text').value='';send(t)};
+$('text').onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();$('send').click()}};
+add('sys','Привет, я Mix. Вставь ключ, выбери модель и пиши. «Live» — голосовой разговор, «Экран» — я увижу, что у тебя на экране.');
+loadModels();
+</script>
+</body>
+</html>
