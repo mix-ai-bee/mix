@@ -113,9 +113,12 @@ footer{text-align:center;color:var(--mut);font-size:13px;padding:40px 20px calc(
       <div class="ic">🪟</div>
       <h3>Windows <span class="tag g">всё включено</span></h3>
       <p>Настоящая программа: управляет компьютером, видит экран, маленький Mix-маскот, голоса Microsoft. Python не нужен.</p>
-      <ol><li>Скачай Mix.exe.</li><li>Открой его — Mix сам предложит установиться: ярлык на рабочем столе и в «Пуске».</li><li>Удалить можно в «Параметры → Приложения».</li></ol>
-      <div class="bt"><a class="btn dark" href="downloads/Mix.exe" download>⬇ Скачать Mix.exe <small id="exeSize">Windows 10/11</small></a></div>
-      <div class="note"><b>Windows может предупредить.</b> У Mix пока нет платной цифровой подписи, поэтому появится «Windows защитила ваш компьютер» — нажми «Подробнее» → «Выполнить в любом случае». Если включён Smart App Control, Windows не даст запустить файл — тогда поставь Mix через браузер (карточка ниже).</div>
+      <p style="margin:0 0 4px"><b>Два варианта — выбирай любой:</b></p>
+      <ol><li><b>Microsoft Store</b> (советуем): откроется страница Mix в официальном магазине, нажми «Получить» — Mix поставится сам и будет обновляться сам.</li><li><b>Mix.exe</b>: скачай файл и открой его. Сюда новые версии и исправления приходят раньше всех.</li></ol>
+      <div class="bt"><a class="btn dark" id="msBtn" href="https://apps.microsoft.com/detail/9P7S8RSG5V90" target="_blank" rel="noopener">⬇ Скачать из Microsoft Store <small>Windows 10/11 · бесплатно</small></a></div>
+      <div class="bt" style="margin-top:8px"><a class="btn" href="downloads/Mix.exe" download>⬇ Скачать Mix.exe <small id="exeSize">Windows 10/11</small></a></div>
+      <p class="sub" style="margin:6px 0 0;font-size:13px">⚡ <b>На Mix.exe новые версии и патчи выходят раньше.</b> В Microsoft Store они попадают после проверки Microsoft — обычно через 1–3 дня.</p>
+      <div class="note"><b>Если Mix.exe не открывается</b> — Windows может его не пустить («Windows защитила ваш компьютер» или Smart App Control), потому что программа не из магазина. Тогда просто ставь Mix из Microsoft Store: там он проверен и подписан Microsoft.</div>
     </div>
     <div class="card" id="cApk">
       <div class="ic">🤖</div>
@@ -167,7 +170,7 @@ const ua=navigator.userAgent,IOS=/iphone|ipad|ipod/i.test(ua)||(navigator.platfo
 const mb=$('mainBtn');
 if(IOS){mb.textContent='📲 Поставить на iPhone';mb.href='#cIos';$('cIos').classList.add('rec')}
 else if(AND){mb.textContent='⬇ Скачать для Android';mb.href='downloads/Mix.apk';mb.setAttribute('download','');$('cApk').classList.add('rec')}
-else if(WIN){mb.textContent='⬇ Скачать для Windows';mb.href='downloads/Mix.exe';mb.setAttribute('download','');$('cWin').classList.add('rec')}
+else if(WIN){mb.textContent='⬇ Скачать из Microsoft Store';mb.href='https://apps.microsoft.com/detail/9P7S8RSG5V90';mb.target='_blank';mb.rel='noopener';$('cWin').classList.add('rec')}
 else{mb.textContent='📲 Установить Mix';mb.href='#cPc';$('cPc').classList.add('rec')}
 /* ---------- установка как приложение ---------- */
 let inst=null;
